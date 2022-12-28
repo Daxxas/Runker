@@ -2,6 +2,7 @@
 using KinematicCharacterController;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Player
 {
@@ -12,7 +13,10 @@ namespace Player
     {
         private CharacterController characterController;
         private KinematicCharacterMotor characterMotor;
+        [SerializeField] private Transform camera;
+        [SerializeField] private float smoothAnimation = 1f;
         private Animator animator;
+        private Vector2 direction = Vector2.zero;
 
         private void Awake()
         {
@@ -24,9 +28,11 @@ namespace Player
         private void Update()
         {
             animator.SetFloat("speedMagnitude", characterMotor.Velocity.magnitude);
-            
-            animator.SetFloat("directionX", characterController.InputProvider.MoveDirection.x);
-            animator.SetFloat("directionZ", characterController.InputProvider.MoveDirection.y);
+
+            direction = Vector2.Lerp(direction, characterController.InputProvider.MoveDirection, smoothAnimation * Time.deltaTime);
+
+            animator.SetFloat("directionX", direction.x);
+            animator.SetFloat("directionZ", direction.y);
             animator.SetBool("isSliding", characterController.CharacterMovementMode == CharacterController.MovementMode.Slide);
         }
 

@@ -10,6 +10,7 @@ namespace Player.Inputs
         public Action<Vector2> onMove;
         public Action<bool> onCrouch;
         public Action<bool> onJump;
+        public Action<float> onScroll;
 
         private Vector2 moveDirection;
         private Vector3 moveDirectionV3;
@@ -27,6 +28,8 @@ namespace Player.Inputs
             
             mainInputs.Main.Crouch.performed += context => onCrouch?.Invoke(context.ReadValue<float>() != 0f);
             mainInputs.Main.Crouch.canceled += context => onCrouch?.Invoke(context.ReadValue<float>() != 0f);
+
+            mainInputs.Main.Zoom.performed += context => onScroll?.Invoke(context.ReadValue<float>());
         }
 
         private void Update()

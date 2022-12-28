@@ -1,6 +1,7 @@
 using System;
 using KinematicCharacterController;
 using Player.Inputs;
+using UnityEditor;
 using UnityEngine;
 
 namespace Player
@@ -133,7 +134,7 @@ namespace Player
             UpdateState();
             
             Vector3 effectiveGroundNormal = motor.GroundingStatus.GroundNormal;
-
+            
             // Adjust velocity to ground normal
             currentVelocity = motor.GetDirectionTangentToSurface(currentVelocity, effectiveGroundNormal) * currentVelocity.magnitude;
             
@@ -147,16 +148,19 @@ namespace Player
             {
                 // calculate slope angle and make it a coefficient
                 float slopeAngle = Vector3.Angle(Vector3.up, effectiveGroundNormal);
-                float slopeSin = Mathf.Sin(slopeAngle);
+                float slopeSin = Mathf.Sin(Mathf.Deg2Rad * slopeAngle);
                 
                 // Make controller slide along slope
                 Vector3 targetVelocity = mass * -gravity * slopeSin * -effectiveGroundNormal;
+                targetVelocity = motor.GetDirectionTangentToSurface(targetVelocity, effectiveGroundNormal) * targetVelocity.magnitude;
+                
+                Debug.DrawRay(transform.position + Vector3.up * 2.05f, targetVelocity, Color.magenta);
                 
                 momentum = Vector3.Slerp(momentum, targetVelocity, 1f - Mathf.Exp(-slideSharpness * deltaTime));
 
                 currentVelocity = momentum;
 
-                Debug.Log(currentVelocity.magnitude + " " + targetVelocity.magnitude);
+                Debug.Log(currentVelocity.magnitude + " " + targetVelocity.magnitude + " " + slopeAngle);
             } 
             else if(characterMovementMode == MovementMode.Walk)
             {
@@ -235,6 +239,9 @@ namespace Player
 
             Vector3 tangent = motor.GetDirectionTangentToSurface(motor.Velocity, effectiveGroundNormal);
             Gizmos.DrawRay(transform.position, tangent);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(transform.position + Vector3.up * 2f, motor.Velocity);
 
         }
 #endif
