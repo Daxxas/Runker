@@ -116,8 +116,7 @@ namespace Player
         {
             if (characterMovementMode == MovementMode.Slide)
                 return;
-            
-            
+
             Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.forward, motor.CharacterUp).normalized;
             if (cameraPlanarDirection.sqrMagnitude == 0f)
             {
@@ -126,7 +125,9 @@ namespace Player
             }
             
             Vector3 smoothedLookInputDirection = Vector3.Slerp(motor.CharacterForward, cameraPlanarDirection, 1 - Mathf.Exp(-orientationSharpness * deltaTime)).normalized;
+
             currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
+
         }
 
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
@@ -152,15 +153,12 @@ namespace Player
                 
                 // Make controller slide along slope
                 Vector3 targetVelocity = mass * -gravity * slopeSin * -effectiveGroundNormal;
+                
+                // Redirect target velocity along ramp instead of being perpendicular to ramp
                 targetVelocity = motor.GetDirectionTangentToSurface(targetVelocity, effectiveGroundNormal) * targetVelocity.magnitude;
                 
-                Debug.DrawRay(transform.position + Vector3.up * 2.05f, targetVelocity, Color.magenta);
-                
                 momentum = Vector3.Slerp(momentum, targetVelocity, 1f - Mathf.Exp(-slideSharpness * deltaTime));
-
                 currentVelocity = momentum;
-
-                Debug.Log(currentVelocity.magnitude + " " + targetVelocity.magnitude + " " + slopeAngle);
             } 
             else if(characterMovementMode == MovementMode.Walk)
             {
