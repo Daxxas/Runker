@@ -25,6 +25,13 @@ namespace Player
         [SerializeField] private float slideBoost = 5f;
         [SerializeField] private float momentumMinimum = 0.01f;
         [SerializeField] private float mass = 10f;
+        [Header("Jump")] 
+        [SerializeField] [Range(0f, 90f)] private float jumpAngle = 90f; 
+        [SerializeField] private float jumpForce = 5f;
+        [SerializeField] private float jumpHoldGravityMultiplier  = 5f;
+        [SerializeField] private float airDrag = 0.01f;
+        [SerializeField] private float airControlForce = 0.01f;
+
 
         // Components
         private InputProvider inputProvider;
@@ -43,6 +50,8 @@ namespace Player
         private Vector3 momentum = Vector3.zero;
 
         private bool inputSliding = false;
+        private bool jumpRequest = false;
+        private bool jumpHold  = false;
         
         private MovementMode characterMovementMode = MovementMode.Airborn;
         public MovementMode CharacterMovementMode => characterMovementMode;
@@ -65,6 +74,7 @@ namespace Player
         void Start()
         {
             inputProvider.onCrouch += UpdateCrouch;
+            inputProvider.onJump += PerformJump;
         }
 
         // Update is called once per frame
@@ -75,22 +85,32 @@ namespace Player
 
         private void UpdateState()
         {
-            if (motor.GroundingStatus.IsStableOnGround)
+            if (inputSliding)
             {
-                if (inputSliding)
-                {
-                    characterMovementMode = MovementMode.Slide;
-                }
-                else
-                {
-                    characterMovementMode = MovementMode.Walk;
-                }
+                characterMovementMode = MovementMode.Slide;
+            }
+            else if (motor.GroundingStatus.IsStableOnGround)
+            {
+                characterMovementMode = MovementMode.Walk;
             }
             else
             {
                 // Keep sliding airborn if started sliding
                 if(characterMovementMode != MovementMode.Slide)
                     characterMovementMode = MovementMode.Airborn;
+            }
+        }
+
+        private void PerformJump(bool jumpPressed)
+        {
+            if (jumpPressed)
+            {
+                jumpRequest = true;
+                jumpHold = true;
+            }
+            else
+            {
+                jumpHold = false;
             }
         }
 
@@ -102,7 +122,7 @@ namespace Player
             UpdateState();
             
             // On slide
-            if (characterMovementMode == MovementMode.Slide)
+            if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround) 
             {
                 momentum = motor.Velocity;
                 // Add slide boost
@@ -114,7 +134,7 @@ namespace Player
 
         public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            if (characterMovementMode == MovementMode.Slide)
+            if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround)
                 return;
 
             Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.forward, motor.CharacterUp).normalized;
@@ -145,6 +165,11 @@ namespace Player
                 momentum = Vector3.zero;
             }
             
+            // Get forward according to camera
+            forwardFromCamera = cameraTransform.rotation * inputProvider.MoveDirectionV3;
+            Vector3 inputRight = Vector3.Cross(forwardFromCamera, motor.CharacterUp);
+            Vector3 characterOrientation = Vector3.Cross(effectiveGroundNormal, inputRight).normalized * forwardFromCamera.magnitude;
+            
             if (characterMovementMode == MovementMode.Slide) 
             {
                 // calculate slope angle and make it a coefficient
@@ -163,11 +188,8 @@ namespace Player
             else if(characterMovementMode == MovementMode.Walk)
             {
                 momentum *= 1f / (1f + (groundDrag * deltaTime));
-                // Get forward according to camera
-                forwardFromCamera = cameraTransform.rotation * inputProvider.MoveDirectionV3;
-                Vector3 inputRight = Vector3.Cross(forwardFromCamera, motor.CharacterUp);
-                Vector3 characterOrientation = Vector3.Cross(effectiveGroundNormal, inputRight).normalized * forwardFromCamera.magnitude;
              
+                currentVelocity += momentum;
                 Vector3 targetVelocity = characterOrientation * groundedMoveSpeed;
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
             }
@@ -177,9 +199,30 @@ namespace Player
                 // Gravity
                 if (!motor.GroundingStatus.IsStableOnGround)
                 {
-                    momentum += Vector3.down * (gravity * deltaTime);
+                    float adaptedGravity = gravity;
+                    if (!jumpHold && momentum.y > 0f)
+                    {
+                        adaptedGravity = gravity * jumpHoldGravityMultiplier;
+                    }
+                    
+                    momentum += Vector3.down * (adaptedGravity * mass * deltaTime);
+                    momentum += forwardFromCamera * (airControlForce * deltaTime);
                     currentVelocity = momentum;
                 }
+            }
+
+
+            // Jump handling
+            float angleCoef = jumpAngle / 90f;
+            Vector3 jumpDirectionFromGround = (motor.CharacterForward * (inputProvider.MoveDirection.y * (1-angleCoef)) + effectiveGroundNormal * angleCoef).normalized;
+            if (jumpRequest && motor.GroundingStatus.IsStableOnGround)
+            {
+                jumpRequest = false;
+                // Redirect momentum to be along ground in case jump is requested mid air (the momentum would going downward otherwise, and adding the jump momentum make the jump weird)
+                momentum = motor.GetDirectionTangentToSurface(momentum, effectiveGroundNormal) * momentum.magnitude;
+                momentum += jumpDirectionFromGround.normalized * jumpForce;
+                motor.ForceUnground();
+                currentVelocity = momentum;
             }
         }
 
@@ -195,7 +238,7 @@ namespace Player
 
         public void AfterCharacterUpdate(float deltaTime)
         {
-        
+            
         }
 
         public bool IsColliderValidForCollisions(Collider coll)
@@ -205,7 +248,7 @@ namespace Player
 
         public void OnGroundHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, ref HitStabilityReport hitStabilityReport)
         {
-        
+
         }
 
         public void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,

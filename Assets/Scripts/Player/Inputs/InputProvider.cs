@@ -23,8 +23,8 @@ namespace Player.Inputs
             mainInputs.Main.Move.performed += context => onMove?.Invoke(context.ReadValue<Vector2>());
             mainInputs.Main.Move.canceled += context => onMove?.Invoke(context.ReadValue<Vector2>());
 
-            mainInputs.Main.Jump.performed += context => onJump?.Invoke(context.ReadValue<bool>());
-            mainInputs.Main.Jump.canceled += context => onJump?.Invoke(context.ReadValue<bool>());
+            mainInputs.Main.Jump.performed += context => onJump?.Invoke(context.ReadValue<float>() != 0f);
+            mainInputs.Main.Jump.canceled += context => onJump?.Invoke(context.ReadValue<float>() != 0f);
             
             mainInputs.Main.Crouch.performed += context => onCrouch?.Invoke(context.ReadValue<float>() != 0f);
             mainInputs.Main.Crouch.canceled += context => onCrouch?.Invoke(context.ReadValue<float>() != 0f);
