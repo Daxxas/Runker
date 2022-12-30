@@ -32,7 +32,9 @@ namespace Player
         [SerializeField] private float airDrag = 0.01f;
         [SerializeField] private float airControlForce = 0.01f;
 
-
+        // Events for external uses
+        public Action onJump;
+        
         // Components
         private InputProvider inputProvider;
         public InputProvider InputProvider => inputProvider;
@@ -76,13 +78,7 @@ namespace Player
             inputProvider.onCrouch += UpdateCrouch;
             inputProvider.onJump += PerformJump;
         }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
-        }
-
+        
         private void UpdateState()
         {
             if (inputSliding)
@@ -96,8 +92,7 @@ namespace Player
             else
             {
                 // Keep sliding airborn if started sliding
-                if(characterMovementMode != MovementMode.Slide)
-                    characterMovementMode = MovementMode.Airborn;
+                characterMovementMode = MovementMode.Airborn;
             }
         }
 
@@ -218,6 +213,7 @@ namespace Player
             if (jumpRequest && motor.GroundingStatus.IsStableOnGround)
             {
                 jumpRequest = false;
+                onJump?.Invoke();
                 // Redirect momentum to be along ground in case jump is requested mid air (the momentum would going downward otherwise, and adding the jump momentum make the jump weird)
                 momentum = motor.GetDirectionTangentToSurface(momentum, effectiveGroundNormal) * momentum.magnitude;
                 momentum += jumpDirectionFromGround.normalized * jumpForce;
