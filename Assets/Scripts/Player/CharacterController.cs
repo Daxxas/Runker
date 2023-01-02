@@ -15,6 +15,7 @@ namespace Player
         [Header("Parameters")]
         [Header("General")]
         [SerializeField] private float gravity = 30f;
+        [SerializeField] private float coefficientOfRestitution = 0.5f;
         [Header("Walk")]
         [SerializeField] private float groundedMoveSpeed = 5f;
         [SerializeField] private float orientationSharpness = 10f;
@@ -31,7 +32,18 @@ namespace Player
         [SerializeField] private float jumpHoldGravityMultiplier  = 5f;
         [SerializeField] private float airDrag = 0.01f;
         [SerializeField] private float airControlForce = 0.01f;
-
+        [Header("Wallrun")]
+        [SerializeField] private float wallRunGravity = 9.81f;
+        [SerializeField] private float wallRunSpeed = 7f;
+        [SerializeField] private float wallRunYBoost = 2f;
+        [SerializeField] private float minHorizontalVelocityToWallrun = 1f;
+        [SerializeField] private float minYVelocityToWallrun = -0.5f;
+        [SerializeField] private float wallRunDrag = 0.1f;
+        [SerializeField] [Range(80f,90f)] private float wallRunMinAngle = 88f;
+        [SerializeField] private float wallRunDetectionDistance = 0.2f;
+        [SerializeField] private float wallRunGripStrength = 2f;
+        [SerializeField] private float wallRotationSharpness = 2f;
+        
         // Events for external uses
         public Action onJump;
         
@@ -55,6 +67,17 @@ namespace Player
         private bool jumpRequest = false;
         private bool jumpHold  = false;
         
+        // Wallrun
+        RaycastHit wallHit;
+        private TouchingWallState touchingWall = TouchingWallState.None;
+
+        public TouchingWallState TouchingWall => touchingWall;
+        public Action onWallRunTouch;
+        public Action onWallRunRelease;
+        private bool canWallRun = false;
+        public bool CanWallRun => canWallRun;
+
+
         private MovementMode characterMovementMode = MovementMode.Airborn;
         public MovementMode CharacterMovementMode => characterMovementMode;
 
@@ -62,7 +85,15 @@ namespace Player
         {
             Slide,
             Walk,
-            Airborn
+            Airborn,
+            Wallrun
+        }
+        
+        public enum TouchingWallState
+        {
+            None,
+            Left,
+            Right
         }
         
         private void Awake()
@@ -81,17 +112,24 @@ namespace Player
         
         private void UpdateState()
         {
-            if (inputSliding)
+            if (canWallRun)
+            {
+                characterMovementMode = MovementMode.Wallrun;
+                return;
+            }
+            
+            if (inputSliding && motor.GroundingStatus.IsStableOnGround)
             {
                 characterMovementMode = MovementMode.Slide;
+                return;
             }
-            else if (motor.GroundingStatus.IsStableOnGround)
+            
+            if (motor.GroundingStatus.IsStableOnGround)
             {
                 characterMovementMode = MovementMode.Walk;
             }
             else
             {
-                // Keep sliding airborn if started sliding
                 characterMovementMode = MovementMode.Airborn;
             }
         }
@@ -121,10 +159,28 @@ namespace Player
             {
                 momentum = motor.Velocity;
                 // Add slide boost
+                
+                // TODO : No boost when coming from air + CD on boost
                 momentum += momentum.normalized * slideBoost;
 
                 motor.BaseVelocity = Vector3.zero;
             }
+        }
+
+        private void WallRunStart()
+        {
+            Debug.Log("Wallrun start");
+            Vector3 wallRunTangent = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
+            Vector3 wallRunDirection = Vector3.ProjectOnPlane(wallRunTangent, wallHit.normal);
+            momentum = wallRunDirection.normalized;// * new Vector3(momentum.x, momentum.z).magnitude;
+            momentum.y = Mathf.Max(momentum.y , wallRunYBoost);
+        }
+
+        private void WallRunEnd()
+        {
+            Debug.Log("Wallrun end");
+            // Keep wall momentum when releasing wallrun
+            momentum = motor.Velocity;
         }
 
         public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -132,17 +188,29 @@ namespace Player
             if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround)
                 return;
 
-            Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.forward, motor.CharacterUp).normalized;
-            if (cameraPlanarDirection.sqrMagnitude == 0f)
+            if (characterMovementMode != MovementMode.Wallrun)
             {
-                // Get Target Direction
-                cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.up, motor.CharacterUp).normalized;
-            }
+                Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.forward, motor.CharacterUp).normalized;
+                if (cameraPlanarDirection.sqrMagnitude == 0f)
+                {
+                    // Get Target Direction
+                    cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.up, motor.CharacterUp).normalized;
+                }
             
-            Vector3 smoothedLookInputDirection = Vector3.Slerp(motor.CharacterForward, cameraPlanarDirection, 1 - Mathf.Exp(-orientationSharpness * deltaTime)).normalized;
+                Vector3 smoothedLookInputDirection = Vector3.Slerp(motor.CharacterForward, cameraPlanarDirection, 1 - Mathf.Exp(-orientationSharpness * deltaTime)).normalized;
 
-            currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
-
+                currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
+            }
+            else
+            {
+                Vector3 tangent = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
+                
+                Vector3 lookRotation = Vector3.ProjectOnPlane(tangent, wallHit.normal);
+                lookRotation.y = 0;
+                
+                Quaternion targetRotation = Quaternion.LookRotation(lookRotation.normalized, motor.CharacterUp);
+                currentRotation = Quaternion.Lerp(currentRotation, targetRotation, 1f - Mathf.Exp(-wallRotationSharpness * deltaTime));
+            }
         }
 
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
@@ -206,7 +274,24 @@ namespace Player
                 }
             }
 
+            if (characterMovementMode is MovementMode.Wallrun)
+            {
+                momentum *= 1f / (1f + (wallRunDrag * deltaTime));
+                momentum.y += -wallRunGravity * mass * deltaTime;
+                
+                // Calculate wallrun direction
+                Vector3 wallRunDirection = motor.CharacterForward;
 
+                Vector3 targetVelocity = wallRunDirection * (wallRunSpeed * inputProvider.MoveDirection.y);
+                // targetVelocity += momentum;
+                Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
+                //
+                // Vector3 planeTargetVelocity = Vector3.ProjectOnPlane(targetVelocity, lastColliderHitNormal);
+                currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
+                currentVelocity += wallRunGripStrength * -wallHit.normal;
+                currentVelocity += momentum;
+            }
+            
             // Jump handling
             float angleCoef = jumpAngle / 90f;
             Vector3 jumpDirectionFromGround = (motor.CharacterForward * (inputProvider.MoveDirection.y * (1-angleCoef)) + effectiveGroundNormal * angleCoef).normalized;
@@ -224,7 +309,79 @@ namespace Player
 
         public void BeforeCharacterUpdate(float deltaTime)
         {
-        
+            Ray toWallRightRay = new Ray()
+            {
+                origin = motor.TransientPosition,
+                direction = motor.CharacterRight
+            };
+                
+            Ray toWallLeftRay = new Ray()
+            {
+                origin = motor.TransientPosition,
+                direction = -motor.CharacterRight
+            };
+
+            TouchingWallState previousTouchWallState = touchingWall;
+            
+            if (Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance))
+            {
+                wallHit = leftHit;
+                if (Vector3.Angle(wallHit.normal, Vector3.up) >= wallRunMinAngle)
+                {
+                    touchingWall = TouchingWallState.Left;
+                }
+                else
+                {
+                    touchingWall = TouchingWallState.None;
+                }
+                
+            }
+            else if (Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance))
+            {
+                wallHit = rightHit;
+                if (Vector3.Angle(wallHit.normal, Vector3.up) >= wallRunMinAngle)
+                {
+                    touchingWall = TouchingWallState.Right;
+                }
+                else
+                {
+                    touchingWall = TouchingWallState.None;
+                }
+            }
+            else
+            {
+                touchingWall = TouchingWallState.None;
+            }
+
+            if (touchingWall != TouchingWallState.None &&
+                new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude > minHorizontalVelocityToWallrun &&
+                !motor.GroundingStatus.IsStableOnGround &&
+                motor.Velocity.y > minYVelocityToWallrun)
+            {
+                canWallRun = true;
+                if(previousTouchWallState != touchingWall || characterMovementMode == MovementMode.Airborn)
+                {
+                    onWallRunTouch?.Invoke();
+                    WallRunStart();
+                }
+            }
+            else 
+            {
+                canWallRun = false;
+            }
+
+
+            // if (previousTouchWallState != TouchingWallState.None &&
+            //     touchingWall == TouchingWallState.None &&
+            //     !motor.GroundingStatus.IsStableOnGround) 
+            // {
+            //     onWallRunRelease?.Invoke();
+            //     WallRunEnd();
+            // }
+            
+            
+            Debug.DrawRay(toWallRightRay.origin, toWallRightRay.direction, Color.magenta);
+            Debug.DrawRay(toWallLeftRay.origin, toWallLeftRay.direction, Color.magenta);
         }
 
         public void PostGroundingUpdate(float deltaTime)
@@ -244,24 +401,41 @@ namespace Player
 
         public void OnGroundHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, ref HitStabilityReport hitStabilityReport)
         {
-
+           
         }
-
+        
         public void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
             ref HitStabilityReport hitStabilityReport)
         {
-        
+            if (Motor.GroundingStatus.IsStableOnGround || hitStabilityReport.IsStable) return;
+
+            // Horizontal velocity above minimum
+            if (new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude < minHorizontalVelocityToWallrun) return;
+
+            float angle = Vector3.Angle(motor.CharacterUp, hitNormal);
+                
+            if (angle <= 90f && angle > motor.MaxStableSlopeAngle)
+            {
+                Debug.Log("Wallrun");
+                wallHit = new RaycastHit()
+                {
+                    normal = hitNormal,
+                    point = hitPoint,
+                };
+            }
+                
+            // momentum = Vector3.ProjectOnPlane(momentum, hitNormalFlat).normalized * momentum.magnitude;
         }
 
         public void ProcessHitStabilityReport(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, Vector3 atCharacterPosition,
             Quaternion atCharacterRotation, ref HitStabilityReport hitStabilityReport)
         {
-        
+
         }
 
         public void OnDiscreteCollisionDetected(Collider hitCollider)
         {
-        
+
         }
         
         #if UNITY_EDITOR
@@ -279,6 +453,8 @@ namespace Player
 
             Gizmos.color = Color.green;
             Gizmos.DrawRay(transform.position + Vector3.up * 2f, motor.Velocity);
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(transform.position + Vector3.up * 2.1f, momentum);
 
         }
 #endif

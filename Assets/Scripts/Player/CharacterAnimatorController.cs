@@ -36,6 +36,9 @@ namespace Player
             animator.SetFloat("velocityVertical", characterMotor.Velocity.y);
             animator.SetFloat("velocityHorizontal", new Vector2(characterMotor.Velocity.x, characterMotor.Velocity.z).magnitude);
             animator.SetBool("isGrounded", characterMotor.GroundingStatus.IsStableOnGround);
+            animator.SetBool("isWallRunning", characterController.CanWallRun);
+            animator.SetBool("isWallRight", characterController.TouchingWall == CharacterController.TouchingWallState.Right);
+            animator.SetBool("isGrounded", characterMotor.GroundingStatus.IsStableOnGround);
 
             direction = Vector2.Lerp(direction, characterController.InputProvider.MoveDirection, smoothAnimation * Time.deltaTime);
 

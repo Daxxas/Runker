@@ -16,7 +16,6 @@ namespace Player
 
         private void UpdateCameraDistance(float delta)
         {
-            Debug.Log("Update camera distance " + delta);
             for (var i = 0; i < cinemachine.m_Orbits.Length; i++)
             {
                 cinemachine.m_Orbits[i].m_Radius += Mathf.Clamp(delta, -1, 1) * scrollSensitivity;
