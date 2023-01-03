@@ -36,8 +36,11 @@ namespace Player
         [SerializeField] private float wallRunGravity = 9.81f;
         [SerializeField] private float wallRunSpeed = 7f;
         [SerializeField] private float wallRunYBoost = 2f;
-        [SerializeField] private float minHorizontalVelocityToWallrun = 1f;
-        [SerializeField] private float minYVelocityToWallrun = -0.5f;
+        [SerializeField] private float wallRunReleaseVelocity = 2f;
+        [SerializeField] private float wallJumpVelocity = 2f;
+        [SerializeField] [Range(0f, 90f)] private float wallJumpAngle = 2f;
+        [SerializeField] private float wallRunHoldDuration = 3f;
+        // TODO : add wallrun cooldown to prevent spamming
         [SerializeField] private float wallRunDrag = 0.1f;
         [SerializeField] [Range(80f,90f)] private float wallRunMinAngle = 88f;
         [SerializeField] private float wallRunDetectionDistance = 0.2f;
@@ -72,6 +75,9 @@ namespace Player
         private TouchingWallState touchingWall = TouchingWallState.None;
 
         public TouchingWallState TouchingWall => touchingWall;
+        private TouchingWallState previousTouchWall = TouchingWallState.None;
+        private Vector3 previousVelocity = Vector3.zero;
+        private float wallRunHoldTimer = 0f;
         public Action onWallRunTouch;
         public Action onWallRunRelease;
         private bool canWallRun = false;
@@ -173,14 +179,16 @@ namespace Player
             Vector3 wallRunTangent = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
             Vector3 wallRunDirection = Vector3.ProjectOnPlane(wallRunTangent, wallHit.normal);
             momentum = wallRunDirection.normalized;// * new Vector3(momentum.x, momentum.z).magnitude;
-            momentum.y = Mathf.Max(momentum.y , wallRunYBoost);
+            momentum.y = Mathf.Max(momentum.y, wallRunYBoost);
         }
 
         private void WallRunEnd()
         {
             Debug.Log("Wallrun end");
-            // Keep wall momentum when releasing wallrun
-            momentum = motor.Velocity;
+            
+            momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
+            if(!jumpRequest) // don't apply release velocity when there will be a jump
+                momentum += wallHit.normal * wallRunReleaseVelocity;
         }
 
         public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -276,20 +284,32 @@ namespace Player
 
             if (characterMovementMode is MovementMode.Wallrun)
             {
-                momentum *= 1f / (1f + (wallRunDrag * deltaTime));
-                momentum.y += -wallRunGravity * mass * deltaTime;
-                
-                // Calculate wallrun direction
-                Vector3 wallRunDirection = motor.CharacterForward;
+                wallRunHoldTimer += deltaTime;
+                if (jumpRequest)
+                {
+                    jumpRequest = false;
+                    float wallJumpAngleCoef = wallJumpAngle / 90f;
+                    Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized;
+                    momentum = jumpDirectionFromWall * wallJumpVelocity;
+                }
+                else
+                {
+                    momentum *= 1f / (1f + (wallRunDrag * deltaTime));
+                    momentum.y += -wallRunGravity * mass * deltaTime;
+                    
+                    // Calculate wallrun direction
+                    Vector3 wallRunDirection = motor.CharacterForward;
 
-                Vector3 targetVelocity = wallRunDirection * (wallRunSpeed * inputProvider.MoveDirection.y);
-                // targetVelocity += momentum;
-                Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
-                //
-                // Vector3 planeTargetVelocity = Vector3.ProjectOnPlane(targetVelocity, lastColliderHitNormal);
-                currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
-                currentVelocity += wallRunGripStrength * -wallHit.normal;
-                currentVelocity += momentum;
+                    Vector3 targetVelocity = wallRunDirection * (wallRunSpeed * inputProvider.MoveDirection.y);
+                    Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
+                    currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
+                    currentVelocity += wallRunGripStrength * -wallHit.normal;
+                    currentVelocity += momentum;
+                }
+            }
+            else
+            {
+                wallRunHoldTimer = 0f;
             }
             
             // Jump handling
@@ -321,7 +341,7 @@ namespace Player
                 direction = -motor.CharacterRight
             };
 
-            TouchingWallState previousTouchWallState = touchingWall;
+            previousTouchWall = touchingWall;
             
             if (Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance))
             {
@@ -354,12 +374,11 @@ namespace Player
             }
 
             if (touchingWall != TouchingWallState.None &&
-                new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude > minHorizontalVelocityToWallrun &&
-                !motor.GroundingStatus.IsStableOnGround &&
-                motor.Velocity.y > minYVelocityToWallrun)
+                !motor.GroundingStatus.FoundAnyGround &&
+                wallRunHoldTimer < wallRunHoldDuration)
             {
                 canWallRun = true;
-                if(previousTouchWallState != touchingWall || characterMovementMode == MovementMode.Airborn)
+                if(previousTouchWall != touchingWall || characterMovementMode == MovementMode.Airborn)
                 {
                     onWallRunTouch?.Invoke();
                     WallRunStart();
@@ -369,11 +388,15 @@ namespace Player
             {
                 canWallRun = false;
             }
-
-
-            // if (previousTouchWallState != TouchingWallState.None &&
-            //     touchingWall == TouchingWallState.None &&
-            //     !motor.GroundingStatus.IsStableOnGround) 
+            
+            if(characterMovementMode == MovementMode.Wallrun && !canWallRun)
+            {
+                onWallRunRelease?.Invoke();
+                WallRunEnd();
+            }
+            // if ((previousTouchWall != TouchingWallState.None && touchingWall == TouchingWallState.None) ||
+            //     (previousVelocity.y > minYVelocityToWallrun && motor.Velocity.y < minYVelocityToWallrun) ||
+            //     (new Vector2(previousVelocity.x, previousVelocity.z).magnitude > minHorizontalVelocityToWallrun && new Vector2(motor.Velocity.x, motor.Velocity.z).magnitude < minHorizontalVelocityToWallrun)) 
             // {
             //     onWallRunRelease?.Invoke();
             //     WallRunEnd();
@@ -382,17 +405,20 @@ namespace Player
             
             Debug.DrawRay(toWallRightRay.origin, toWallRightRay.direction, Color.magenta);
             Debug.DrawRay(toWallLeftRay.origin, toWallLeftRay.direction, Color.magenta);
+            previousVelocity = motor.Velocity;
         }
 
+        
+        public void AfterCharacterUpdate(float deltaTime)
+        {
+            
+        }
+        
         public void PostGroundingUpdate(float deltaTime)
         {
         
         }
 
-        public void AfterCharacterUpdate(float deltaTime)
-        {
-            
-        }
 
         public bool IsColliderValidForCollisions(Collider coll)
         {
@@ -409,14 +435,10 @@ namespace Player
         {
             if (Motor.GroundingStatus.IsStableOnGround || hitStabilityReport.IsStable) return;
 
-            // Horizontal velocity above minimum
-            if (new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude < minHorizontalVelocityToWallrun) return;
-
             float angle = Vector3.Angle(motor.CharacterUp, hitNormal);
                 
             if (angle <= 90f && angle > motor.MaxStableSlopeAngle)
             {
-                Debug.Log("Wallrun");
                 wallHit = new RaycastHit()
                 {
                     normal = hitNormal,
