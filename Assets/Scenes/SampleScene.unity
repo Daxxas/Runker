@@ -3563,7 +3563,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 102043947}
-  m_LocalRotation: {x: 0.122183226, y: -0.00000003307036, z: 0.000000004071146, w: 0.9925076}
+  m_LocalRotation: {x: 0.12218325, y: 1.5800387e-15, z: 2.3404092e-16, w: 0.9925076}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -14229,7 +14229,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
-  m_LocalRotation: {x: 0.12218323, y: -0.00000003307036, z: 0.0000000040711465, w: 0.9925076}
+  m_LocalRotation: {x: 0.12218326, y: 0.0000000073947586, z: -9.1033636e-10, w: 0.9925076}
   m_LocalPosition: {x: 47.8, y: 5.74, z: -9.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -34466,7 +34466,6 @@ MonoBehaviour:
   groundedMoveSpeed: 5
   orientationSharpness: 10
   walkSharpness: 10
-  groundDrag: 50
   slideSharpness: 0.5
   slideBoost: 5
   momentumMinimum: 0.01
@@ -34479,6 +34478,7 @@ MonoBehaviour:
   wallRunGravity: 10
   wallRunSpeed: 7
   wallRunYBoost: 11
+  wallRunForwardBoost: 10
   wallRunMinimumHorizontalVelocity: 3
   wallRunReleaseVelocity: 2
   wallJumpVelocity: 10
