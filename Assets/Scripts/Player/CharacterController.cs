@@ -36,6 +36,7 @@ namespace Player
         [SerializeField] private float wallRunGravity = 9.81f;
         [SerializeField] private float wallRunSpeed = 7f;
         [SerializeField] private float wallRunYBoost = 2f;
+        [SerializeField] private float wallRunForwardBoost = 2f;
         [SerializeField] private float wallRunMinimumHorizontalVelocity = 0.1f;
         [SerializeField] private float wallRunReleaseVelocity = 2f;
         [SerializeField] private float wallJumpVelocity = 2f;
@@ -192,7 +193,8 @@ namespace Player
                 float wallJumpAngleCoef = wallJumpAngle / 90f; // Calculate walljump angle coefficient
                 Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized; // Calculate walljump direction with coeffecient
                 momentum = jumpDirectionFromWall * wallJumpVelocity; // Apply walljump velocity
-                
+                momentum += motor.CharacterForward * wallRunForwardBoost; // Add forward boost
+
             }
             else
             {
