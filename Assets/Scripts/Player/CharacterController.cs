@@ -41,7 +41,6 @@ namespace Player
         [SerializeField] [Range(0f, 90f)] private float wallJumpAngle = 2f;
         [SerializeField] private float wallRunHoldDuration = 3f;
         [SerializeField] private float wallRunCooldown = 3f;
-        // TODO : add wallrun cooldown to prevent spamming
         [SerializeField] private float wallRunDrag = 0.1f;
         [SerializeField] [Range(80f,90f)] private float wallRunMinAngle = 88f;
         [SerializeField] private float wallRunDetectionDistance = 0.2f;
@@ -158,59 +157,52 @@ namespace Player
 
         private void UpdateCrouch(bool isCrouch)
         {
-            inputSliding = isCrouch;
+            inputSliding = isCrouch; // Save input for controller
+            UpdateState(); // Force state update to update movement mode
             
-            // Force state update to update movement mode
-            UpdateState();
-            
-            // On slide
+            // On slide grounded
             if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround) 
             {
-                momentum = motor.Velocity;
-                // Add slide boost
-                
-                // TODO : No boost when coming from air + CD on boost
-                momentum += momentum.normalized * slideBoost;
-
+                momentum = motor.Velocity; // Transfer velocity to momentum when sliding
                 motor.BaseVelocity = Vector3.zero;
+                // TODO : No boost when coming from air + CD on boost
+                momentum += momentum.normalized * slideBoost; // Add slide boost
             }
         }
 
         private void WallRunStart()
         {
-            wallRunStartTime = Time.time;
-            Debug.Log("Wallrun start");
-            Vector3 wallRunTangent = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
-            Vector3 wallRunDirection = Vector3.ProjectOnPlane(wallRunTangent, wallHit.normal);
-            momentum = wallRunDirection.normalized;// * new Vector3(momentum.x, momentum.z).magnitude;
-            momentum.y = Mathf.Max(momentum.y, wallRunYBoost);
+            wallRunStartTime = Time.time; // Used to calculate wallrun hold duration
+            Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal); // Get Velocity direction tangent to ground
+            Vector3 wallRunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal); // Apply velocity direction to wall
+            momentum = wallRunDirection.normalized; // Kill momentum when wallrunning
+            momentum.y = Mathf.Max(momentum.y, wallRunYBoost); // Boost Y velocity at start of wallrun
         }
 
         private void WallRunEnd()
         {
-            hasTouchedGroundSinceWallrun = false;
+            hasTouchedGroundSinceWallrun = false; 
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
-            if (jumpRequest) // don't apply release velocity when there will be a jump
+            if (jumpRequest) 
             {
-                wallRunCooldownTime = 0f;
-                Debug.Log("Jump at time " + Time.fixedTime);
                 jumpRequest = false;
-                hasTouchedGroundSinceWallrun = true;
-                float wallJumpAngleCoef = wallJumpAngle / 90f;
-                Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized;
-                momentum = jumpDirectionFromWall * wallJumpVelocity;
+                wallRunCooldownTime = 0f; // Don't put wallrun on cooldown
+                
+                float wallJumpAngleCoef = wallJumpAngle / 90f; // Calculate walljump angle coefficient
+                Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized; // Calculate walljump direction with coeffecient
+                momentum = jumpDirectionFromWall * wallJumpVelocity; // Apply walljump velocity
                 
             }
             else
             {
-                wallRunCooldownTime = Time.time;
-                Debug.Log("Wallrun release at " + Time.fixedTime);
+                wallRunCooldownTime = Time.time; // Put wallrun on cooldown
                 momentum += wallHit.normal * wallRunReleaseVelocity;
             }
         }
 
         public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
+            // Don't update rotation when sliding
             if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround)
                 return;
 
@@ -229,12 +221,11 @@ namespace Player
             }
             else
             {
-                Vector3 tangent = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
+                Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
+                Vector3 wallrunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal);
+                wallrunDirection.y = 0;
                 
-                Vector3 lookRotation = Vector3.ProjectOnPlane(tangent, wallHit.normal);
-                lookRotation.y = 0;
-                
-                Quaternion targetRotation = Quaternion.LookRotation(lookRotation.normalized, motor.CharacterUp);
+                Quaternion targetRotation = Quaternion.LookRotation(wallrunDirection.normalized, motor.CharacterUp);
                 currentRotation = Quaternion.Lerp(currentRotation, targetRotation, 1f - Mathf.Exp(-wallRotationSharpness * deltaTime));
             }
         }
@@ -274,7 +265,8 @@ namespace Player
                 momentum = Vector3.Slerp(momentum, targetVelocity, 1f - Mathf.Exp(-slideSharpness * deltaTime));
                 currentVelocity = momentum;
             } 
-            else if(characterMovementMode == MovementMode.Walk)
+            
+            if(characterMovementMode == MovementMode.Walk)
             {
                 momentum *= 1f / (1f + (groundDrag * deltaTime));
              
@@ -283,7 +275,7 @@ namespace Player
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
             }
             
-            if (characterMovementMode is MovementMode.Airborn or MovementMode.Slide)
+            if (characterMovementMode is MovementMode.Airborn or MovementMode.Slide) // Can slide and still be in the air
             { 
                 // Gravity
                 if (!motor.GroundingStatus.IsStableOnGround)
@@ -303,7 +295,7 @@ namespace Player
             if (characterMovementMode is MovementMode.Wallrun)
             {
                 momentum *= 1f / (1f + (wallRunDrag * deltaTime));
-                momentum.y += -wallRunGravity * mass * deltaTime;
+                momentum.y += -wallRunGravity * mass * deltaTime; // Apply gravity
                 
                 // Calculate wallrun direction
                 Vector3 wallRunDirection = motor.CharacterForward;
@@ -311,17 +303,17 @@ namespace Player
                 Vector3 targetVelocity = wallRunDirection * (wallRunSpeed * inputProvider.MoveDirection.y);
                 Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
-                currentVelocity += wallRunGripStrength * -wallHit.normal;
+                currentVelocity += wallRunGripStrength * -wallHit.normal; // Apply grip velocity to stick on wall
                 currentVelocity += momentum;
             }
             
-            // Jump handling
-            float angleCoef = jumpAngle / 90f;
-            Vector3 jumpDirectionFromGround = (motor.CharacterForward * (inputProvider.MoveDirection.y * (1-angleCoef)) + effectiveGroundNormal * angleCoef).normalized;
+            // Jump handling when grounded
             if (jumpRequest && motor.GroundingStatus.IsStableOnGround)
             {
                 jumpRequest = false;
                 onJump?.Invoke();
+                float angleCoef = jumpAngle / 90f;
+                Vector3 jumpDirectionFromGround = (motor.CharacterForward * (inputProvider.MoveDirection.y * (1-angleCoef)) + effectiveGroundNormal * angleCoef).normalized;
                 // Redirect momentum to be along ground in case jump is requested mid air (the momentum would going downward otherwise, and adding the jump momentum make the jump weird)
                 momentum = motor.GetDirectionTangentToSurface(momentum, effectiveGroundNormal) * momentum.magnitude;
                 momentum += jumpDirectionFromGround.normalized * jumpForce;
@@ -332,6 +324,10 @@ namespace Player
 
         public void BeforeCharacterUpdate(float deltaTime)
         {
+
+            if (motor.GroundingStatus.IsStableOnGround)
+                hasTouchedGroundSinceWallrun = true;
+            
             Ray toWallRightRay = new Ray()
             {
                 origin = motor.TransientPosition,
@@ -344,10 +340,6 @@ namespace Player
                 direction = -motor.CharacterRight
             };
 
-            previousTouchWall = touchingWall;
-
-            if (motor.GroundingStatus.IsStableOnGround)
-                hasTouchedGroundSinceWallrun = true;
 
             // if wall run on cooldown
             bool leftWall = Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance);
@@ -417,6 +409,7 @@ namespace Player
             Debug.DrawRay(toWallRightRay.origin, toWallRightRay.direction, Color.magenta);
             Debug.DrawRay(toWallLeftRay.origin, toWallLeftRay.direction, Color.magenta);
             previousVelocity = motor.Velocity;
+            previousTouchWall = touchingWall;
         }
 
         
