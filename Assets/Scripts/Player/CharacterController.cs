@@ -40,6 +40,7 @@ namespace Player
         [SerializeField] private float wallJumpVelocity = 2f;
         [SerializeField] [Range(0f, 90f)] private float wallJumpAngle = 2f;
         [SerializeField] private float wallRunHoldDuration = 3f;
+        [SerializeField] private float wallRunCooldown = 3f;
         // TODO : add wallrun cooldown to prevent spamming
         [SerializeField] private float wallRunDrag = 0.1f;
         [SerializeField] [Range(80f,90f)] private float wallRunMinAngle = 88f;
@@ -78,10 +79,12 @@ namespace Player
         private TouchingWallState previousTouchWall = TouchingWallState.None;
         private Vector3 previousVelocity = Vector3.zero;
         private float wallRunHoldTimer = 0f;
+        private float wallRunCooldownTime = 0f;
+        private bool hasTouchedGroundSinceWallrun = false;
         public Action onWallRunTouch;
         public Action onWallRunRelease;
-        private bool canWallRun = false;
-        public bool CanWallRun => canWallRun;
+        private bool shouldWallRun = false;
+        public bool ShouldWallRun => shouldWallRun;
 
 
         private MovementMode characterMovementMode = MovementMode.Airborn;
@@ -118,7 +121,7 @@ namespace Player
         
         private void UpdateState()
         {
-            if (canWallRun)
+            if (shouldWallRun)
             {
                 characterMovementMode = MovementMode.Wallrun;
                 return;
@@ -187,8 +190,11 @@ namespace Player
             Debug.Log("Wallrun end");
             
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
-            if(!jumpRequest) // don't apply release velocity when there will be a jump
+            if (!jumpRequest) // don't apply release velocity when there will be a jump
+            {
+                wallRunCooldownTime = Time.time;
                 momentum += wallHit.normal * wallRunReleaseVelocity;
+            }
         }
 
         public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -323,7 +329,7 @@ namespace Player
                 momentum = motor.GetDirectionTangentToSurface(momentum, effectiveGroundNormal) * momentum.magnitude;
                 momentum += jumpDirectionFromGround.normalized * jumpForce;
                 motor.ForceUnground();
-                currentVelocity = momentum;
+                currentVelocity = momentum; 
             }
         }
 
@@ -342,6 +348,17 @@ namespace Player
             };
 
             previousTouchWall = touchingWall;
+
+            if (motor.GroundingStatus.IsStableOnGround)
+                hasTouchedGroundSinceWallrun = true;
+
+            // if wall run on cooldown
+            if (!hasTouchedGroundSinceWallrun && Time.time < wallRunCooldownTime + wallRunCooldown)
+            {
+                touchingWall = TouchingWallState.None;
+                return;
+            }
+
             
             if (Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance))
             {
@@ -349,12 +366,12 @@ namespace Player
                 if (Vector3.Angle(wallHit.normal, Vector3.up) >= wallRunMinAngle)
                 {
                     touchingWall = TouchingWallState.Left;
+                    hasTouchedGroundSinceWallrun = false;
                 }
                 else
                 {
                     touchingWall = TouchingWallState.None;
                 }
-                
             }
             else if (Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance))
             {
@@ -362,6 +379,7 @@ namespace Player
                 if (Vector3.Angle(wallHit.normal, Vector3.up) >= wallRunMinAngle)
                 {
                     touchingWall = TouchingWallState.Right;
+                    hasTouchedGroundSinceWallrun = false;
                 }
                 else
                 {
@@ -377,7 +395,7 @@ namespace Player
                 !motor.GroundingStatus.FoundAnyGround &&
                 wallRunHoldTimer < wallRunHoldDuration)
             {
-                canWallRun = true;
+                shouldWallRun = true;
                 if(previousTouchWall != touchingWall || characterMovementMode == MovementMode.Airborn)
                 {
                     onWallRunTouch?.Invoke();
@@ -386,11 +404,12 @@ namespace Player
             }
             else 
             {
-                canWallRun = false;
+                shouldWallRun = false;
             }
             
-            if(characterMovementMode == MovementMode.Wallrun && !canWallRun)
+            if(characterMovementMode == MovementMode.Wallrun && !shouldWallRun)
             {
+                Debug.Log("Release");
                 onWallRunRelease?.Invoke();
                 WallRunEnd();
             }
