@@ -187,13 +187,19 @@ namespace Player
 
         private void WallRunEnd()
         {
-            Debug.Log("Wallrun end");
             
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
             if (!jumpRequest) // don't apply release velocity when there will be a jump
             {
+                Debug.Log("Wallrun release at " + Time.fixedTime);
+            
                 wallRunCooldownTime = Time.time;
                 momentum += wallHit.normal * wallRunReleaseVelocity;
+            }
+            else
+            {
+                Debug.Log("Wallrun jump");
+
             }
         }
 
@@ -229,6 +235,8 @@ namespace Player
 
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
+            Debug.Log(Time.fixedTime);
+            
             UpdateState();
             
             Vector3 effectiveGroundNormal = motor.GroundingStatus.GroundNormal;
@@ -291,8 +299,10 @@ namespace Player
             if (characterMovementMode is MovementMode.Wallrun)
             {
                 wallRunHoldTimer += deltaTime;
+                // TODO : deal with jump request in BeforeUpdate & WallEnd
                 if (jumpRequest)
                 {
+                    Debug.Log("Jump at time " + Time.fixedTime);
                     jumpRequest = false;
                     float wallJumpAngleCoef = wallJumpAngle / 90f;
                     Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized;
@@ -359,8 +369,10 @@ namespace Player
                 return;
             }
 
+            bool leftWall = Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance);
+            bool rightWall = Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance);
             
-            if (Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance))
+            if (leftWall)
             {
                 wallHit = leftHit;
                 if (Vector3.Angle(wallHit.normal, Vector3.up) >= wallRunMinAngle)
@@ -373,7 +385,7 @@ namespace Player
                     touchingWall = TouchingWallState.None;
                 }
             }
-            else if (Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance))
+            else if (rightWall)
             {
                 wallHit = rightHit;
                 if (Vector3.Angle(wallHit.normal, Vector3.up) >= wallRunMinAngle)
