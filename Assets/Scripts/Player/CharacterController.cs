@@ -20,7 +20,7 @@ namespace Player
         [SerializeField] private float groundedMoveSpeed = 5f;
         [SerializeField] private float orientationSharpness = 10f;
         [SerializeField] private float walkSharpness = 10f;
-        [SerializeField] private float groundDrag = 0.1f;
+        // [SerializeField] private float groundDrag = 0.1f;
         [Header("Slide")]
         [SerializeField] private float slideSharpness = 10f;
         [SerializeField] private float slideBoost = 5f;
@@ -269,11 +269,10 @@ namespace Player
             
             if(characterMovementMode == MovementMode.Walk)
             {
-                momentum *= 1f / (1f + (groundDrag * deltaTime));
-             
-                currentVelocity += momentum;
+                // Everything is momentum, even walking
                 Vector3 targetVelocity = characterOrientation * groundedMoveSpeed;
-                currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
+                momentum = Vector3.Lerp(momentum, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
+                currentVelocity = momentum;
             }
             
             if (characterMovementMode is MovementMode.Airborn or MovementMode.Slide) // Can slide and still be in the air
@@ -288,7 +287,18 @@ namespace Player
                     }
                     
                     momentum += Vector3.down * (adaptedGravity * mass * deltaTime);
-                    momentum += forwardFromCamera * (airControlForce * deltaTime);
+                    
+                    // TODO : No air drag for the moment >:(
+                    // if((momentum + forwardFromCamera * (airControlForce * deltaTime)).magnitude < airControlMaxSpeed)
+                    // {
+                    //     momentum += forwardFromCamera * (airControlForce * deltaTime);
+                    //     Debug.Log("Adding air drag " + momentum.magnitude);
+                    // }
+                    // else
+                    // {
+                    //     Debug.Log("NOT adding air drag " + momentum.magnitude);
+                    //
+                    // }
                     currentVelocity = momentum;
                 }
             }
@@ -325,65 +335,52 @@ namespace Player
 
         public void BeforeCharacterUpdate(float deltaTime)
         {
-
             if (motor.GroundingStatus.IsStableOnGround)
                 hasTouchedGroundSinceWallrun = true;
             
+            
+            // Ray casting for walls
             Ray toWallRightRay = new Ray()
             {
-                origin = motor.TransientPosition,
+                origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
                 direction = motor.CharacterRight
             };
                 
             Ray toWallLeftRay = new Ray()
             {
-                origin = motor.TransientPosition,
+                origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
                 direction = -motor.CharacterRight
             };
 
-
-            // if wall run on cooldown
+            Debug.DrawRay(toWallRightRay.origin, toWallRightRay.direction, Color.magenta);
+            Debug.DrawRay(toWallLeftRay.origin, toWallLeftRay.direction, Color.magenta);
+            
             bool leftWall = Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance);
             bool rightWall = Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance);
             
-            if (leftWall)
+            if (leftWall && Vector3.Angle(leftHit.normal, Vector3.up) >= wallRunMinAngle)
             {
                 wallHit = leftHit;
-                if (Vector3.Angle(wallHit.normal, Vector3.up) >= wallRunMinAngle)
-                {
-                    touchingWall = TouchingWallState.Left;
-                }
-                else
-                {
-                    touchingWall = TouchingWallState.None;
-                }
+                touchingWall = TouchingWallState.Left;
+
             }
-            else if (rightWall)
+            else if (rightWall && Vector3.Angle(rightHit.normal, Vector3.up) >= wallRunMinAngle)
             {
                 wallHit = rightHit;
-                if (Vector3.Angle(wallHit.normal, Vector3.up) >= wallRunMinAngle)
-                {
-                    touchingWall = TouchingWallState.Right;
-                }
-                else
-                {
-                    touchingWall = TouchingWallState.None;
-                }
+                touchingWall = TouchingWallState.Right;
+
             }
             else
             {
                 touchingWall = TouchingWallState.None;
             }
 
-
             bool wallRunOnCooldown = Time.time < wallRunCooldownTime + wallRunCooldown;
             bool canHoldOnWall = Time.time < wallRunStartTime + wallRunHoldDuration;
-
-            Debug.Log(new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude);
             
             if (touchingWall != TouchingWallState.None && // if touching wall
                 !motor.GroundingStatus.IsStableOnGround && // if not grounded
-                new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude > wallRunMinimumHorizontalVelocity &&
+                // new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude > wallRunMinimumHorizontalVelocity && // TODO : find a way to prevent wall jump start being spam when standing next to a wall simply sometimes
                 (!wallRunOnCooldown || hasTouchedGroundSinceWallrun) && // if not on cooldown
                 (canHoldOnWall || characterMovementMode != MovementMode.Wallrun)) // if can still hold the wall run
             {
@@ -409,8 +406,6 @@ namespace Player
                 WallRunEnd();
             }
 
-            Debug.DrawRay(toWallRightRay.origin, toWallRightRay.direction, Color.magenta);
-            Debug.DrawRay(toWallLeftRay.origin, toWallLeftRay.direction, Color.magenta);
             previousVelocity = motor.Velocity;
             previousTouchWall = touchingWall;
         }
