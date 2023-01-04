@@ -36,6 +36,7 @@ namespace Player
         [SerializeField] private float wallRunGravity = 9.81f;
         [SerializeField] private float wallRunSpeed = 7f;
         [SerializeField] private float wallRunYBoost = 2f;
+        [SerializeField] private float wallRunMinimumHorizontalVelocity = 0.1f;
         [SerializeField] private float wallRunReleaseVelocity = 2f;
         [SerializeField] private float wallJumpVelocity = 2f;
         [SerializeField] [Range(0f, 90f)] private float wallJumpAngle = 2f;
@@ -378,9 +379,11 @@ namespace Player
             bool wallRunOnCooldown = Time.time < wallRunCooldownTime + wallRunCooldown;
             bool canHoldOnWall = Time.time < wallRunStartTime + wallRunHoldDuration;
 
+            Debug.Log(new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude);
             
             if (touchingWall != TouchingWallState.None && // if touching wall
                 !motor.GroundingStatus.IsStableOnGround && // if not grounded
+                new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude > wallRunMinimumHorizontalVelocity &&
                 (!wallRunOnCooldown || hasTouchedGroundSinceWallrun) && // if not on cooldown
                 (canHoldOnWall || characterMovementMode != MovementMode.Wallrun)) // if can still hold the wall run
             {
