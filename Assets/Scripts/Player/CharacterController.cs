@@ -401,6 +401,14 @@ namespace Player
                 shouldWallRun = false;
             }
             
+            // Inputs according to character forward
+            Vector3 forwardFromCharacter = transform.rotation * inputProvider.MoveDirectionV3;
+            Vector3 inputRight = Vector3.Cross(forwardFromCharacter, motor.CharacterUp);
+            Vector3 characterOrientation = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
+
+            // TODO : unsnap from wall
+            Debug.Log(characterOrientation);
+            
             if(characterMovementMode == MovementMode.Wallrun && ((!canHoldOnWall) || jumpRequest))
             {
                 Debug.Log("Release");
