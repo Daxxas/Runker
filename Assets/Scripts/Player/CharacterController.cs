@@ -189,6 +189,8 @@ namespace Player
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
             if (jumpRequest) 
             {
+                Debug.Log("wall run end with jump");
+
                 jumpRequest = false;
                 wallRunCooldownTime = 0f; // Don't put wallrun on cooldown
                 
@@ -200,6 +202,8 @@ namespace Player
             }
             else
             {
+                Debug.Log("wall run end release");
+                momentum = motor.Velocity;
                 wallRunCooldownTime = Time.time; // Put wallrun on cooldown
                 momentum += wallHit.normal * wallRunReleaseVelocity;
             }
@@ -292,7 +296,7 @@ namespace Player
                     
                     momentum += Vector3.down * (adaptedGravity * mass * deltaTime);
                     
-                    // TODO : No air drag for the moment >:(
+                    // TODO : No air control for the moment >:(
                     // if((momentum + forwardFromCamera * (airControlForce * deltaTime)).magnitude < airControlMaxSpeed)
                     // {
                     //     momentum += forwardFromCamera * (airControlForce * deltaTime);
@@ -303,6 +307,8 @@ namespace Player
                     //     Debug.Log("NOT adding air drag " + momentum.magnitude);
                     //
                     // }
+                    
+                    momentum *= 1f / (1f + (airDrag * deltaTime));
                     currentVelocity = momentum;
                 }
             }
@@ -386,7 +392,8 @@ namespace Player
                 !motor.GroundingStatus.IsStableOnGround && // if not grounded
                 // new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude > wallRunMinimumHorizontalVelocity && // TODO : find a way to prevent wall jump start being spam when standing next to a wall simply sometimes
                 (!wallRunOnCooldown || hasTouchedGroundSinceWallrun) && // if not on cooldown
-                (canHoldOnWall || characterMovementMode != MovementMode.Wallrun)) // if can still hold the wall run
+                (canHoldOnWall || characterMovementMode != MovementMode.Wallrun) && // if can still hold the wall run
+                !jumpRequest) 
             {
                 shouldWallRun = true;
                 // if wall run just started
@@ -409,9 +416,7 @@ namespace Player
             Vector3 characterOrientation = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
 
             // TODO : unsnap from wall
-            Debug.Log(characterOrientation);
-            
-            if(characterMovementMode == MovementMode.Wallrun && ((!canHoldOnWall) || jumpRequest))
+            if(characterMovementMode == MovementMode.Wallrun && (!canHoldOnWall || !shouldWallRun))
             {
                 Debug.Log("Release");
                 onWallRunRelease?.Invoke();
