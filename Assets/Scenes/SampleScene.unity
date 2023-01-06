@@ -2562,11 +2562,11 @@ MonoBehaviour:
   m_SplineCurvature: 0
   m_Orbits:
   - m_Height: 10.94
-    m_Radius: 11
+    m_Radius: -9
   - m_Height: 2.5
-    m_Radius: 10
+    m_Radius: -10
   - m_Height: -0.4
-    m_Radius: 9
+    m_Radius: -11
   m_LegacyHeadingBias: 3.4028235e+38
   m_Rigs:
   - {fileID: 1084167579}
@@ -2580,7 +2580,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 84079946}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 47.8, y: 5.74, z: -9.8}
+  m_LocalPosition: {x: 47.8, y: 5.74, z: 10.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3563,7 +3563,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 102043947}
-  m_LocalRotation: {x: 0.12218325, y: 1.5800387e-15, z: 2.3404092e-16, w: 0.9925076}
+  m_LocalRotation: {x: -1.4759947e-16, y: 0.9925076, z: -0.12218325, w: -2.4198927e-15}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -12877,7 +12877,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 4
-  m_FollowOffset: {x: 0, y: 2.5, z: -10}
+  m_FollowOffset: {x: 0, y: 2.5, z: 10}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -14229,8 +14229,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
-  m_LocalRotation: {x: 0.12218326, y: 0.0000000073947586, z: -9.1033636e-10, w: 0.9925076}
-  m_LocalPosition: {x: 47.8, y: 5.74, z: -9.8}
+  m_LocalRotation: {x: -0.000000003753413, y: 0.9925076, z: -0.122183286, w: -0.000000030489367}
+  m_LocalPosition: {x: 47.8, y: 5.74, z: 10.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14669,7 +14669,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 4
-  m_FollowOffset: {x: 0, y: 2.5, z: -10}
+  m_FollowOffset: {x: 0, y: 2.5, z: 10}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -15430,7 +15430,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 4
-  m_FollowOffset: {x: 0, y: 2.5, z: -10}
+  m_FollowOffset: {x: 0, y: 2.5, z: 10}
   m_XDamping: 1
   m_YDamping: 1
   m_ZDamping: 1
@@ -15684,7 +15684,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 386408858}
-  m_LocalRotation: {x: 0.086049825, y: -0.0000000042856403, z: 3.7015152e-10, w: 0.99629086}
+  m_LocalRotation: {x: -2.86459e-10, y: 0.99629086, z: -0.08604982, w: -0.0000000033166427}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -16282,7 +16282,7 @@ MonoBehaviour:
   Director: {fileID: 427079663}
 --- !u!95 &427079662
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -16299,7 +16299,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!320 &427079663
 PlayableDirector:
   m_ObjectHideFlags: 0
@@ -34430,7 +34430,7 @@ SkinnedMeshRenderer:
   m_DirtyAABB: 0
 --- !u!95 &989140543
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -34447,7 +34447,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!114 &989140544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34466,6 +34466,8 @@ MonoBehaviour:
   groundedMoveSpeed: 5
   orientationSharpness: 10
   walkSharpness: 10
+  groundedRunSpeed: 7
+  runSharpness: 5
   slideSharpness: 0.5
   slideBoost: 5
   momentumMinimum: 0.01
@@ -34478,18 +34480,18 @@ MonoBehaviour:
   wallRunGravity: 10
   wallRunSpeed: 7
   wallRunYBoost: 11
-  wallRunForwardBoost: 10
   wallRunMinimumHorizontalVelocity: 3
   wallRunReleaseVelocity: 2
-  wallJumpVelocity: 10
-  wallJumpAngle: 45
   wallRunHoldDuration: 1.5
   wallRunCooldown: 3
   wallRunDrag: 0.3
   wallRunMinAngle: 88
-  wallRunDetectionDistance: 0.2
+  wallRunDetectionDistance: 0.1
   wallRunGripStrength: 2
   wallRotationSharpness: 10
+  wallJumpVelocity: 12
+  wallJumpForwardBoost: 4
+  wallJumpAngle: 45
 --- !u!114 &989140545
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36636,7 +36638,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1084167578}
-  m_LocalRotation: {x: 0.12218325, y: -1.5800387e-15, z: -2.3404092e-16, w: 0.9925076}
+  m_LocalRotation: {x: -4.0808927e-18, y: 0.9925076, z: -0.12218324, w: -3.5397656e-17}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

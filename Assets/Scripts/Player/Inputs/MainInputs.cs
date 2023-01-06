@@ -62,6 +62,15 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Run"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""14b8d7b7-d1ef-4b3f-8af7-f176719619cb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -152,6 +161,17 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""action"": ""Zoom"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""adedfe6e-d753-4deb-acec-a051ff1b1769"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Run"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -164,6 +184,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         m_Main_Crouch = m_Main.FindAction("Crouch", throwIfNotFound: true);
         m_Main_Jump = m_Main.FindAction("Jump", throwIfNotFound: true);
         m_Main_Zoom = m_Main.FindAction("Zoom", throwIfNotFound: true);
+        m_Main_Run = m_Main.FindAction("Run", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -227,6 +248,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
     private readonly InputAction m_Main_Crouch;
     private readonly InputAction m_Main_Jump;
     private readonly InputAction m_Main_Zoom;
+    private readonly InputAction m_Main_Run;
     public struct MainActions
     {
         private @MainInputs m_Wrapper;
@@ -235,6 +257,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         public InputAction @Crouch => m_Wrapper.m_Main_Crouch;
         public InputAction @Jump => m_Wrapper.m_Main_Jump;
         public InputAction @Zoom => m_Wrapper.m_Main_Zoom;
+        public InputAction @Run => m_Wrapper.m_Main_Run;
         public InputActionMap Get() { return m_Wrapper.m_Main; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -256,6 +279,9 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @Zoom.started -= m_Wrapper.m_MainActionsCallbackInterface.OnZoom;
                 @Zoom.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnZoom;
                 @Zoom.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnZoom;
+                @Run.started -= m_Wrapper.m_MainActionsCallbackInterface.OnRun;
+                @Run.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnRun;
+                @Run.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnRun;
             }
             m_Wrapper.m_MainActionsCallbackInterface = instance;
             if (instance != null)
@@ -272,6 +298,9 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @Zoom.started += instance.OnZoom;
                 @Zoom.performed += instance.OnZoom;
                 @Zoom.canceled += instance.OnZoom;
+                @Run.started += instance.OnRun;
+                @Run.performed += instance.OnRun;
+                @Run.canceled += instance.OnRun;
             }
         }
     }
@@ -282,5 +311,6 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         void OnCrouch(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
+        void OnRun(InputAction.CallbackContext context);
     }
 }

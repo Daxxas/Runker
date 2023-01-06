@@ -21,6 +21,9 @@ namespace Player
         [SerializeField] private float groundedMoveSpeed = 5f;
         [SerializeField] private float orientationSharpness = 10f;
         [SerializeField] private float walkSharpness = 10f;
+        [Header("Run")]
+        [SerializeField] private float groundedRunSpeed = 7f;
+        [SerializeField] private float runSharpness = 10f;
         // [SerializeField] private float groundDrag = 0.1f;
         [Header("Slide")]
         [SerializeField] private float slideSharpness = 10f;
@@ -70,6 +73,7 @@ namespace Player
         // Movement
         private Vector3 momentum = Vector3.zero;
 
+        private bool isRunning = false;
         private bool inputSliding = false;
         private bool jumpRequest = false;
         private bool jumpHold  = false;
@@ -96,7 +100,7 @@ namespace Player
         public enum MovementMode
         {
             Slide,
-            Walk,
+            Grounded,
             Airborn,
             Wallrun
         }
@@ -119,6 +123,7 @@ namespace Player
         void Start()
         {
             inputProvider.onCrouch += UpdateCrouch;
+            inputProvider.onRun += UpdateRun;
             inputProvider.onJump += PerformJump;
         }
         
@@ -138,7 +143,7 @@ namespace Player
             
             if (motor.GroundingStatus.IsStableOnGround)
             {
-                characterMovementMode = MovementMode.Walk;
+                characterMovementMode = MovementMode.Grounded;
             }
             else
             {
@@ -157,6 +162,11 @@ namespace Player
             {
                 jumpHold = false;
             }
+        }
+
+        private void UpdateRun(bool isRun)
+        {
+            isRunning = isRun;
         }
 
         private void UpdateCrouch(bool isCrouch)
@@ -189,8 +199,6 @@ namespace Player
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
             if (jumpRequest) 
             {
-                Debug.Log("wall run end with jump");
-
                 jumpRequest = false;
                 wallRunCooldownTime = 0f; // Don't put wallrun on cooldown
                 
@@ -274,11 +282,13 @@ namespace Player
                 currentVelocity = momentum;
             } 
             
-            if(characterMovementMode == MovementMode.Walk)
+            if(characterMovementMode == MovementMode.Grounded)
             {
                 // Everything is momentum, even walking
-                Vector3 targetVelocity = characterOrientation * groundedMoveSpeed;
-                momentum = Vector3.Lerp(momentum, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
+                float targetSpeed = !isRunning ? groundedMoveSpeed : groundedRunSpeed;
+                float lerpSharpness = !isRunning ? walkSharpness : runSharpness;
+                Vector3 targetVelocity = characterOrientation * targetSpeed;
+                momentum = Vector3.Lerp(momentum, targetVelocity, 1f - Mathf.Exp(-lerpSharpness * deltaTime));
                 currentVelocity = momentum;
             }
             
