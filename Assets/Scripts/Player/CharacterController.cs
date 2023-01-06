@@ -196,14 +196,13 @@ namespace Player
                 
                 float wallJumpAngleCoef = wallJumpAngle / 90f; // Calculate walljump angle coefficient
                 Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized; // Calculate walljump direction with coeffecient
-                momentum = jumpDirectionFromWall * wallJumpVelocity; // Apply walljump velocity
+                momentum += jumpDirectionFromWall * wallJumpVelocity; // Apply walljump velocity
                 momentum += motor.CharacterForward * wallJumpForwardBoost; // Add forward boost
 
             }
             else
             {
                 Debug.Log("wall run end release");
-                momentum = motor.Velocity;
                 wallRunCooldownTime = Time.time; // Put wallrun on cooldown
                 momentum += wallHit.normal * wallRunReleaseVelocity;
             }
