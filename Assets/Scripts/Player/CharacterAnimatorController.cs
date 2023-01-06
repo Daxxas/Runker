@@ -1,8 +1,5 @@
-﻿using System;
-using KinematicCharacterController;
-using UnityEditor;
+﻿using KinematicCharacterController;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Player
 {

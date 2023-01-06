@@ -3,6 +3,7 @@ using KinematicCharacterController;
 using Player.Inputs;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Player
 {
@@ -36,11 +37,8 @@ namespace Player
         [SerializeField] private float wallRunGravity = 9.81f;
         [SerializeField] private float wallRunSpeed = 7f;
         [SerializeField] private float wallRunYBoost = 2f;
-        [SerializeField] private float wallRunForwardBoost = 2f;
         [SerializeField] private float wallRunMinimumHorizontalVelocity = 0.1f;
         [SerializeField] private float wallRunReleaseVelocity = 2f;
-        [SerializeField] private float wallJumpVelocity = 2f;
-        [SerializeField] [Range(0f, 90f)] private float wallJumpAngle = 2f;
         [SerializeField] private float wallRunHoldDuration = 3f;
         [SerializeField] private float wallRunCooldown = 3f;
         [SerializeField] private float wallRunDrag = 0.1f;
@@ -48,6 +46,10 @@ namespace Player
         [SerializeField] private float wallRunDetectionDistance = 0.2f;
         [SerializeField] private float wallRunGripStrength = 2f;
         [SerializeField] private float wallRotationSharpness = 2f;
+        [Header("Walljump")]
+        [SerializeField] private float wallJumpVelocity = 2f;
+        [SerializeField] private float wallJumpForwardBoost = 2f;
+        [SerializeField] [Range(0f, 90f)] private float wallJumpAngle = 2f;
         
         // Events for external uses
         public Action onJump;
@@ -193,7 +195,7 @@ namespace Player
                 float wallJumpAngleCoef = wallJumpAngle / 90f; // Calculate walljump angle coefficient
                 Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized; // Calculate walljump direction with coeffecient
                 momentum = jumpDirectionFromWall * wallJumpVelocity; // Apply walljump velocity
-                momentum += motor.CharacterForward * wallRunForwardBoost; // Add forward boost
+                momentum += motor.CharacterForward * wallJumpForwardBoost; // Add forward boost
 
             }
             else
