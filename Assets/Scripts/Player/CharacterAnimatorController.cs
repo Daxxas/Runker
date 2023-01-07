@@ -39,9 +39,10 @@ namespace Player
 
             direction = Vector2.Lerp(direction, characterController.InputProvider.MoveDirection, smoothAnimation * Time.deltaTime);
 
-            animator.SetFloat("directionX", direction.x * characterMotor.Velocity.magnitude);
-            animator.SetFloat("directionZ", direction.y * characterMotor.Velocity.magnitude);
+            animator.SetFloat("directionX", direction.x);
+            animator.SetFloat("directionZ", direction.y);
             animator.SetBool("isSliding", characterController.CharacterMovementMode == CharacterController.MovementMode.Slide);
+            animator.SetBool("isRunning", characterController.IsRunning);
         }
 
         private void OnDrawGizmos()

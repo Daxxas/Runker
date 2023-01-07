@@ -74,6 +74,8 @@ namespace Player
         private Vector3 momentum = Vector3.zero;
 
         private bool isRunning = false;
+
+        public bool IsRunning => isRunning;
         private bool inputSliding = false;
         private bool jumpRequest = false;
         private bool jumpHold  = false;
