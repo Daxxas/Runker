@@ -30,7 +30,8 @@ namespace Player
         [Header("Slide")]
         [SerializeField] private float slideSharpness = 10f;
         [SerializeField] private float slideBoost = 5f;
-        [SerializeField] private float slideBoostMinimumSpeed = 5f;
+        [SerializeField] private float slideBoostMinimumHorizontalVelocity = 5f;
+        [SerializeField] private float slideGroundTimeMinimum = 3f;
         [Header("Jump")] 
         [SerializeField] [Range(0f, 90f)] private float jumpAngle = 90f; 
         [SerializeField] private float jumpForce = 5f;
@@ -72,8 +73,9 @@ namespace Player
         public Vector3 ForwardFromCamera => forwardFromCamera;
         
         // Movement
+        public Vector2 HorizontalVelocity => new Vector2(motor.Velocity.x, motor.Velocity.z);
         private Vector3 momentum = Vector3.zero;
-
+        private float groundTime = 0f;
         private bool isRunning = false;
 
         public bool IsRunning => isRunning;
@@ -180,10 +182,16 @@ namespace Player
             // On slide grounded
             if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround) 
             {
+
+                Debug.Log("Slide ! " + HorizontalVelocity.magnitude + " > " + slideBoostMinimumHorizontalVelocity);
                 momentum = motor.Velocity; // Transfer velocity to momentum when sliding
-                motor.BaseVelocity = Vector3.zero;
-                // TODO : No boost when coming from air + CD on boost
-                momentum += momentum.normalized * slideBoost; // Add slide boost
+                if (HorizontalVelocity.magnitude > slideBoostMinimumHorizontalVelocity && groundTime > slideGroundTimeMinimum)
+                {
+                    Debug.Log("Boost !");
+                    momentum += momentum.normalized * slideBoost; // Add slide boost
+                }
+                motor.BaseVelocity = Vector3.zero; // Velocity has been transfered to momentum
+                groundTime = 0f;
             }
         }
 
@@ -271,6 +279,8 @@ namespace Player
             
             if (characterMovementMode == MovementMode.Slide) 
             {
+                groundTime = 0f;
+
                 // calculate slope angle and make it a coefficient
                 float slopeAngle = Vector3.Angle(Vector3.up, effectiveGroundNormal);
                 float slopeSin = Mathf.Sin(Mathf.Deg2Rad * slopeAngle);
@@ -287,6 +297,7 @@ namespace Player
             
             if(characterMovementMode == MovementMode.Grounded)
             {
+                groundTime += deltaTime;
                 // Everything is momentum, even walking
                 float targetSpeed = !isRunning ? groundedMoveSpeed : groundedRunSpeed;
                 float lerpSharpness = !isRunning ? walkSharpness : runSharpness;
@@ -296,7 +307,7 @@ namespace Player
             }
             
             if (characterMovementMode is MovementMode.Airborn or MovementMode.Slide) // Can slide and still be in the air
-            { 
+            {
                 // Gravity
                 if (!motor.GroundingStatus.IsStableOnGround)
                 {
@@ -327,6 +338,8 @@ namespace Player
 
             if (characterMovementMode is MovementMode.Wallrun)
             {
+                groundTime += deltaTime;
+
                 momentum *= 1f / (1f + (wallRunDrag * deltaTime));
                 momentum.y += -wallRunGravity * mass * deltaTime; // Apply gravity
                 
@@ -402,7 +415,6 @@ namespace Player
             
             if (touchingWall != TouchingWallState.None && // if touching wall
                 !motor.GroundingStatus.IsStableOnGround && // if not grounded
-                // new Vector3(motor.Velocity.x, 0, motor.Velocity.z).magnitude > wallRunMinimumHorizontalVelocity && // TODO : find a way to prevent wall jump start being spam when standing next to a wall simply sometimes
                 (!wallRunOnCooldown || hasTouchedGroundSinceWallrun) && // if not on cooldown
                 (canHoldOnWall || characterMovementMode != MovementMode.Wallrun) && // if can still hold the wall run
                 !jumpRequest) 
