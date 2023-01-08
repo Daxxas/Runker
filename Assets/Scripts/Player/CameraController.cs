@@ -31,11 +31,11 @@ namespace Player
             //     landImpulse.GenerateImpulseWithForce(characterController.Motor.Velocity.y * landImpulseAmplitude);
             // };
         }
-        Vector3 characterForward;
+        Vector3 characterForwardUpdate;
 
         private void Update()
         {
-            characterForward = characterController.transform.forward;
+            characterForwardUpdate = characterController.transform.forward;
 
             switch (characterController.CharacterMovementMode)
             {
@@ -69,11 +69,11 @@ namespace Player
                 // Adjust camera rotation when wallrunning when it's not straight walls
                 if (characterController.TouchingWall == CharacterController.TouchingWallState.Right)
                 {
-                    cinemachine.m_XAxis.Value += Vector3.Angle(characterForward, characterController.transform.forward);
+                    cinemachine.m_XAxis.Value += Vector3.Angle(characterForwardUpdate, characterController.transform.forward);
                 }
                 else
                 {
-                    cinemachine.m_XAxis.Value -= Vector3.Angle(characterForward, characterController.transform.forward);
+                    cinemachine.m_XAxis.Value -= Vector3.Angle(characterForwardUpdate, characterController.transform.forward);
                 }
             }
         }

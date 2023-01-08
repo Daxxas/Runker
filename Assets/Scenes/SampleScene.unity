@@ -14285,7 +14285,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
-  m_LocalRotation: {x: 1.4759947e-16, y: 0.9925076, z: -0.12218325, w: 2.4198927e-15}
+  m_LocalRotation: {x: 0, y: 0.9925076, z: -0.12218325, w: 3.5527137e-15}
   m_LocalPosition: {x: 47.8, y: 5.74, z: 10.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -15740,7 +15740,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 386408858}
-  m_LocalRotation: {x: 1.4759947e-16, y: 0.9925076, z: -0.12218325, w: 2.4198927e-15}
+  m_LocalRotation: {x: -0.000000003753411, y: 0.9925076, z: -0.12218322, w: -0.000000030489364}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -34897,35 +34897,35 @@ MonoBehaviour:
   gravity: 9.81
   coefficientOfRestitution: 0.5
   momentumMinimum: 0.01
-  mass: 1
+  mass: 1.2
   groundedMoveSpeed: 5
   orientationSharpness: 10
   walkSharpness: 10
-  groundedRunSpeed: 10
-  runSharpness: 5
+  groundedRunSpeed: 17
+  runSharpness: 3
   slideSharpness: 0.5
-  slideBoost: 5
-  slideBoostMinimumHorizontalVelocity: 5
+  slideBoost: 10
+  slideBoostMinimumHorizontalVelocity: 6
   slideGroundTimeMinimum: 1
   jumpAngle: 90
   jumpForce: 10
   jumpHoldGravityMultiplier: 2
   airDrag: 0.05
   airControlForce: 10
-  wallRunGravity: 10
-  wallRunSpeed: 7
+  wallRunGravity: 8
+  wallRunSpeed: 22
   wallRunYBoost: 11
   wallRunMinimumHorizontalVelocity: 3
   wallRunReleaseVelocity: 2
-  wallRunHoldDuration: 1.5
+  wallRunHoldDuration: 3
   wallRunCooldown: 3
   wallRunDrag: 0.3
   wallRunMinAngle: 88
   wallRunDetectionDistance: 0.1
-  wallRunGripStrength: 2
+  wallRunGripStrength: 10
   wallRotationSharpness: 10
-  wallJumpVelocity: 12
-  wallJumpForwardBoost: 4
+  wallJumpVelocity: 15
+  wallJumpForwardBoost: -3
   wallJumpAngle: 45
   wallJumpDisabledFrames: 5
 --- !u!114 &989140545

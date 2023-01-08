@@ -87,6 +87,7 @@ namespace Player
         
         // Wall Jump
         private int wallJumpFrameCount = 0;
+        private bool wallJumpPreventingWallRun => wallJumpFrameCount < wallJumpDisabledFrames;
         
         // Wallrun
         RaycastHit wallHit;
@@ -357,8 +358,11 @@ namespace Player
                 Vector3 targetVelocity = wallRunDirection * (wallRunSpeed * inputProvider.MoveDirection.y);
                 Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
-                currentVelocity += wallRunGripStrength * -wallHit.normal; // Apply grip velocity to stick on wall
                 currentVelocity += momentum;
+                if (!wallJumpPreventingWallRun)
+                {
+                    currentVelocity += wallRunGripStrength * -wallHit.normal; // Apply grip velocity to stick on wall
+                }
             }
             
             // Jump handling when grounded
@@ -383,7 +387,7 @@ namespace Player
 
         public void BeforeCharacterUpdate(float deltaTime)
         {
-            if (wallJumpFrameCount < wallJumpDisabledFrames)
+            if (wallJumpPreventingWallRun)
             {
                 wallJumpFrameCount++;
             }
@@ -456,7 +460,7 @@ namespace Player
             Vector3 inputDirection = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
             bool inputAwayFromWall = (inputDirection - wallHit.normal).magnitude < 1f;
             
-            if(characterMovementMode == MovementMode.Wallrun && wallJumpFrameCount >= wallJumpDisabledFrames && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun || jumpRequest))
+            if(characterMovementMode == MovementMode.Wallrun && !wallJumpPreventingWallRun && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun || jumpRequest))
             {
                 onWallRunRelease?.Invoke();
                 WallRunEnd();
