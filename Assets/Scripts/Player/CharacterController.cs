@@ -264,7 +264,7 @@ namespace Player
             Vector3 effectiveGroundNormal = motor.GroundingStatus.GroundNormal;
             
             // Adjust velocity to ground normal
-            currentVelocity = motor.GetDirectionTangentToSurface(currentVelocity, effectiveGroundNormal) * currentVelocity.magnitude;
+            currentVelocity = motor.GetDirectionTangentToSurface(currentVelocity, effectiveGroundNormal) * HorizontalVelocity.magnitude;
             
             // Round momentum to zero if too small
             if (momentum.magnitude < momentumMinimum)
@@ -319,17 +319,15 @@ namespace Player
                     
                     momentum += Vector3.down * (adaptedGravity * mass * deltaTime);
                     
-                    // TODO : No air control for the moment >:(
-                    // if((momentum + forwardFromCamera * (airControlForce * deltaTime)).magnitude < airControlMaxSpeed)
-                    // {
-                    //     momentum += forwardFromCamera * (airControlForce * deltaTime);
-                    //     Debug.Log("Adding air drag " + momentum.magnitude);
-                    // }
-                    // else
-                    // {
-                    //     Debug.Log("NOT adding air drag " + momentum.magnitude);
-                    //
-                    // }
+                    // Air control
+                    Vector2 horizontalMomentum = new Vector2(momentum.x, momentum.z);
+                    Vector3 airControl = forwardFromCamera * (airControlForce * deltaTime);
+                    Vector2 horizontalAirControl = new Vector2(airControl.x, airControl.z);
+                    // Avoid adding air control force when in the same direction of momentum
+                    Vector2 horizontalDifference = horizontalMomentum.normalized - horizontalAirControl.normalized;
+                    
+                    // momentum += forwardFromCamera * (airControlForce * deltaTime * horizontalDifference.magnitude);
+                    // Debug.Log("Adding air drag " + momentum.magnitude);
                     
                     momentum *= 1f / (1f + (airDrag * deltaTime));
                     currentVelocity = momentum;
@@ -439,6 +437,7 @@ namespace Player
             Vector3 inputRight = Vector3.Cross(forwardFromCharacter, motor.CharacterUp);
             Vector3 characterOrientation = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
 
+            // TODO : Wall release is stil called twice when walljumping somtimes
             // TODO : unsnap from wall
             if(characterMovementMode == MovementMode.Wallrun && (!canHoldOnWall || !shouldWallRun))
             {
