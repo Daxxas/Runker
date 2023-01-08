@@ -17,6 +17,8 @@ namespace Player
         [Header("General")]
         [SerializeField] private float gravity = 30f;
         [SerializeField] private float coefficientOfRestitution = 0.5f;
+        [SerializeField] private float momentumMinimum = 0.01f;
+        [SerializeField] private float mass = 10f;
         [Header("Walk")]
         [SerializeField] private float groundedMoveSpeed = 5f;
         [SerializeField] private float orientationSharpness = 10f;
@@ -28,8 +30,7 @@ namespace Player
         [Header("Slide")]
         [SerializeField] private float slideSharpness = 10f;
         [SerializeField] private float slideBoost = 5f;
-        [SerializeField] private float momentumMinimum = 0.01f;
-        [SerializeField] private float mass = 10f;
+        [SerializeField] private float slideBoostMinimumSpeed = 5f;
         [Header("Jump")] 
         [SerializeField] [Range(0f, 90f)] private float jumpAngle = 90f; 
         [SerializeField] private float jumpForce = 5f;
