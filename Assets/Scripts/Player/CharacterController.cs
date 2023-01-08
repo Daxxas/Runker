@@ -325,15 +325,11 @@ namespace Player
                     momentum += Vector3.down * (adaptedGravity * mass * deltaTime);
                     
                     // Air control
-                    Vector2 horizontalMomentum = new Vector2(momentum.x, momentum.z);
                     Vector3 airControl = forwardFromCamera * (airControlForce * deltaTime);
-                    Vector2 horizontalAirControl = new Vector2(airControl.x, airControl.z);
-                    // Avoid adding air control force when in the same direction of momentum
-                    Vector2 horizontalDifference = horizontalMomentum.normalized - horizontalAirControl.normalized;
-                    
-                    // momentum += forwardFromCamera * (airControlForce * deltaTime * horizontalDifference.magnitude);
-                    // Debug.Log("Adding air drag " + momentum.magnitude);
-                    
+                    float momentumMagnitude = momentum.magnitude; // Save magnitude to restore it later
+                    momentum += airControl; 
+                    momentum = momentum.normalized * momentumMagnitude; // Restore magnitude after adding air control to avoid air control creating momentum
+
                     momentum *= 1f / (1f + (airDrag * deltaTime));
                     currentVelocity = momentum;
                 }
@@ -449,7 +445,6 @@ namespace Player
             Vector3 inputDirection = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
             bool inputAwayFromWall = (inputDirection - wallHit.normal).magnitude < 1f;
             
-            // TODO : unsnap from wall
             if(characterMovementMode == MovementMode.Wallrun && wallJumpFrameCount >= wallJumpDisabledFrames && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun || jumpRequest))
             {
                 Debug.Log("Release");
