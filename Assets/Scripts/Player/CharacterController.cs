@@ -358,7 +358,12 @@ namespace Player
                 jumpRequest = false;
                 onJump?.Invoke();
                 float angleCoef = jumpAngle / 90f;
-                Vector3 jumpDirectionFromGround = (motor.CharacterForward * (inputProvider.MoveDirection.y * (1-angleCoef)) + effectiveGroundNormal * angleCoef).normalized;
+                Vector3 jumpDirectionFromGround = Vector3.up;
+                // We want to be jump perpendicular to the ground when sliding
+                if (characterMovementMode == MovementMode.Slide)
+                {
+                    jumpDirectionFromGround = (motor.CharacterForward * (inputProvider.MoveDirection.y * (1-angleCoef)) + effectiveGroundNormal * angleCoef).normalized;
+                }
                 // Redirect momentum to be along ground in case jump is requested mid air (the momentum would going downward otherwise, and adding the jump momentum make the jump weird)
                 momentum = motor.GetDirectionTangentToSurface(momentum, effectiveGroundNormal) * momentum.magnitude;
                 momentum += jumpDirectionFromGround.normalized * jumpForce;
@@ -371,7 +376,6 @@ namespace Player
         {
             if (wallJumpFrameCount < wallJumpDisabledFrames)
             {
-                Debug.Log("wallJumpFrameCount increment " + wallJumpFrameCount);
                 wallJumpFrameCount++;
             }
             
