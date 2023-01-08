@@ -59,6 +59,7 @@ namespace Player
         
         // Events for external uses
         public Action onJump;
+        public Action onLand;
         
         // Components
         private InputProvider inputProvider;
@@ -89,6 +90,7 @@ namespace Player
         
         // Wallrun
         RaycastHit wallHit;
+        public RaycastHit WallHit => wallHit;
         private TouchingWallState touchingWall = TouchingWallState.None;
 
         public TouchingWallState TouchingWall => touchingWall;
@@ -146,12 +148,21 @@ namespace Player
             
             if (inputSliding && motor.GroundingStatus.IsStableOnGround)
             {
+                // If we were airborn, it means we are landing
+                if(characterMovementMode == MovementMode.Airborn) 
+                    onLand?.Invoke();
+                
                 characterMovementMode = MovementMode.Slide;
                 return;
             }
             
             if (motor.GroundingStatus.IsStableOnGround)
             {
+                // TODO : Rework the if to avoid copy/paste code
+                // If we were airborn, it means we are landing
+                if(characterMovementMode == MovementMode.Airborn) 
+                    onLand?.Invoke();
+                
                 characterMovementMode = MovementMode.Grounded;
             }
             else
@@ -187,11 +198,11 @@ namespace Player
             if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround) 
             {
 
-                Debug.Log("Slide ! " + HorizontalVelocity.magnitude + " > " + slideBoostMinimumHorizontalVelocity);
+                // Debug.Log("Slide ! " + HorizontalVelocity.magnitude + " > " + slideBoostMinimumHorizontalVelocity);
                 momentum = motor.Velocity; // Transfer velocity to momentum when sliding
                 if (HorizontalVelocity.magnitude > slideBoostMinimumHorizontalVelocity && groundTime > slideGroundTimeMinimum)
                 {
-                    Debug.Log("Boost !");
+                    // Debug.Log("Boost !");
                     momentum += momentum.normalized * slideBoost; // Add slide boost
                 }
                 motor.BaseVelocity = Vector3.zero; // Velocity has been transfered to momentum
@@ -226,7 +237,6 @@ namespace Player
             }
             else
             {
-                Debug.Log("wall run end release");
                 wallRunCooldownTime = Time.time; // Put wallrun on cooldown
                 momentum += wallHit.normal * wallRunReleaseVelocity;
             }
@@ -276,7 +286,6 @@ namespace Player
             {
                 momentum = Vector3.zero;
             }
-            
             // Get forward according to camera
             forwardFromCamera = cameraTransform.rotation * inputProvider.MoveDirectionV3;
             Vector3 inputRight = Vector3.Cross(forwardFromCamera, motor.CharacterUp);
@@ -434,8 +443,6 @@ namespace Player
                 {
                     onWallRunTouch?.Invoke();
                     WallRunStart();
-                    Debug.Log((touchingWall != TouchingWallState.None) + " " + (!motor.GroundingStatus.IsStableOnGround) + " " + (!wallRunOnCooldown) + " " + (canHoldOnWall || characterMovementMode != MovementMode.Wallrun));
-
                 }
             }
             else 
@@ -451,7 +458,6 @@ namespace Player
             
             if(characterMovementMode == MovementMode.Wallrun && wallJumpFrameCount >= wallJumpDisabledFrames && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun || jumpRequest))
             {
-                Debug.Log("Release");
                 onWallRunRelease?.Invoke();
                 WallRunEnd();
             }
