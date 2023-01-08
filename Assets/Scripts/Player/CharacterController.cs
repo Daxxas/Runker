@@ -55,6 +55,7 @@ namespace Player
         [SerializeField] private float wallJumpVelocity = 2f;
         [SerializeField] private float wallJumpForwardBoost = 2f;
         [SerializeField] [Range(0f, 90f)] private float wallJumpAngle = 2f;
+        [SerializeField] private int wallJumpDisabledFrames = 5;
         
         // Events for external uses
         public Action onJump;
@@ -82,6 +83,9 @@ namespace Player
         private bool inputSliding = false;
         private bool jumpRequest = false;
         private bool jumpHold  = false;
+        
+        // Wall Jump
+        private int wallJumpFrameCount = 0;
         
         // Wallrun
         RaycastHit wallHit;
@@ -206,6 +210,7 @@ namespace Player
 
         private void WallRunEnd()
         {
+            wallJumpFrameCount = 0; // Reset walljump frame count
             hasTouchedGroundSinceWallrun = false; 
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
             if (jumpRequest) 
@@ -368,6 +373,12 @@ namespace Player
 
         public void BeforeCharacterUpdate(float deltaTime)
         {
+            if (wallJumpFrameCount < wallJumpDisabledFrames)
+            {
+                Debug.Log("wallJumpFrameCount increment " + wallJumpFrameCount);
+                wallJumpFrameCount++;
+            }
+            
             if (motor.GroundingStatus.IsStableOnGround)
                 hasTouchedGroundSinceWallrun = true;
             
@@ -414,8 +425,8 @@ namespace Player
             if (touchingWall != TouchingWallState.None && // if touching wall
                 !motor.GroundingStatus.IsStableOnGround && // if not grounded
                 (!wallRunOnCooldown || hasTouchedGroundSinceWallrun) && // if not on cooldown
-                (canHoldOnWall || characterMovementMode != MovementMode.Wallrun) && // if can still hold the wall run
-                !jumpRequest) 
+                (canHoldOnWall || characterMovementMode != MovementMode.Wallrun) // if can still hold the wall run
+                ) 
             {
                 shouldWallRun = true;
                 // if wall run just started
@@ -435,11 +446,11 @@ namespace Player
             // Inputs according to character forward
             Vector3 forwardFromCharacter = transform.rotation * inputProvider.MoveDirectionV3;
             Vector3 inputRight = Vector3.Cross(forwardFromCharacter, motor.CharacterUp);
-            Vector3 characterOrientation = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
-
-            // TODO : Wall release is stil called twice when walljumping somtimes
+            Vector3 inputDirection = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
+            bool inputAwayFromWall = (inputDirection - wallHit.normal).magnitude < 1f;
+            
             // TODO : unsnap from wall
-            if(characterMovementMode == MovementMode.Wallrun && (!canHoldOnWall || !shouldWallRun))
+            if(characterMovementMode == MovementMode.Wallrun && wallJumpFrameCount >= wallJumpDisabledFrames && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun || jumpRequest))
             {
                 Debug.Log("Release");
                 onWallRunRelease?.Invoke();
