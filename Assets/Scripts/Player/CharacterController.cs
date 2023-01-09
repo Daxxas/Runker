@@ -42,6 +42,8 @@ namespace Player
         [SerializeField] private float jumpHoldGravityMultiplier  = 5f;
         [SerializeField] private float airDrag = 0.01f;
         [SerializeField] private float airControlForce = 0.01f;
+        [SerializeField] private int aerialJumpMax = 1;
+        [SerializeField] [Range(0f, 1f)] private float aerialJumpDirectionInfluence = 1f;
         [Header("Wallrun")]
         [SerializeField] private float wallRunGravity = 9.81f;
         [SerializeField] private float wallRunSpeed = 7f;
@@ -88,6 +90,7 @@ namespace Player
         private bool inputSliding = false;
         private bool jumpRequest = false;
         private bool jumpHold  = false;
+        private int aerialJumpCount = 0;
         
         // Wall Jump
         private int wallJumpFrameCount = 0;
@@ -240,6 +243,7 @@ namespace Player
 
         private void WallRunEnd()
         {
+            aerialJumpCount = 0; // Reset aerials after wallrun
             wallJumpFrameCount = 0; // Reset walljump frame count
             hasTouchedGroundSinceWallrun = false; 
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
@@ -384,8 +388,14 @@ namespace Player
             }
             
             // Jump handling when grounded
-            if (jumpRequest && motor.GroundingStatus.IsStableOnGround)
+            if (jumpRequest && (motor.GroundingStatus.IsStableOnGround || aerialJumpCount < aerialJumpMax))
             {
+                if (!motor.GroundingStatus.IsStableOnGround)
+                {
+                    momentum = momentum * (1f - aerialJumpDirectionInfluence) + (aerialJumpDirectionInfluence * momentum.magnitude * motor.CharacterForward);
+                    aerialJumpCount++;
+                }
+                
                 jumpRequest = false;
                 onJump?.Invoke();
                 float angleCoef = jumpAngle / 90f;
@@ -507,7 +517,7 @@ namespace Player
 
         public void OnGroundHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, ref HitStabilityReport hitStabilityReport)
         {
-           
+            aerialJumpCount = 0;
         }
         
         public void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
