@@ -466,8 +466,8 @@ namespace Player
             if (touchingWall != TouchingWallState.None && // if touching wall
                 !motor.GroundingStatus.IsStableOnGround && // if not grounded
                 (!wallRunOnCooldown || hasTouchedGroundSinceWallrun) && // if not on cooldown
-                (canHoldOnWall || characterMovementMode != MovementMode.Wallrun) // if can still hold the wall run
-                ) 
+                (canHoldOnWall || characterMovementMode != MovementMode.Wallrun) && // if can still hold the wall run
+                !wallJumpPreventingWallRun) 
             {
                 shouldWallRun = true;
                 // if wall run just started

@@ -2,6 +2,7 @@
 using Cinemachine;
 using Player.Camera;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Player
 {
@@ -13,6 +14,13 @@ namespace Player
         [SerializeField] private CinemachineCameraOffset cinemachineCameraOffset;
         [SerializeField] private CinemachineRecomposer cinemachineRecomposer;
 
+        [FormerlySerializedAs("tiltVelocityCoef")]
+        [FormerlySerializedAs("tiltYCoef")]
+        [Header("Tilt")] 
+        [SerializeField] private float tiltPower = 1f;
+        [SerializeField] private float tiltMax = 10f;
+        [SerializeField] private float tiltSharpness = 1f;
+        
         [Header("Impulses")] 
         [SerializeField] private CameraTiltImpulse landImpulse;
         [SerializeField] private float landImpulseAmplitude = 1f;
@@ -24,18 +32,23 @@ namespace Player
         
         private CameraOffset targetOffset;
 
+        private float targetTilt = 0;
+        
         private void Start()
         {
-            characterController.onLand += () =>
-            {
-                landImpulse.Impulse();
-            };
+            // characterController.onLand += () =>
+            // {
+            //     landImpulse.Impulse();
+            // };
         }
         Vector3 characterForwardUpdate;
 
         private void Update()
         {
             characterForwardUpdate = characterController.transform.forward;
+
+            targetTilt = Mathf.Clamp(-characterController.Motor.Velocity.y, -tiltMax, tiltMax) * tiltPower;
+            cinemachineRecomposer.m_Tilt = Mathf.Lerp(cinemachineRecomposer.m_Tilt, targetTilt, Time.deltaTime * tiltSharpness);
 
             switch (characterController.CharacterMovementMode)
             {

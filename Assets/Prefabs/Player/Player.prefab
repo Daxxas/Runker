@@ -1086,9 +1086,9 @@ MonoBehaviour:
   wallRunSpeed: 22
   wallRunYBoost: 11
   wallRunMinimumHorizontalVelocity: 3
-  wallRunReleaseVelocity: 2
+  wallRunReleaseVelocity: 6
   wallRunHoldDuration: 3
-  wallRunCooldown: 3
+  wallRunCooldown: 0.5
   wallRunDrag: 0.3
   wallRunMinAngle: 88
   wallRunDetectionDistance: 0.1
