@@ -19,6 +19,10 @@ namespace Player
         [SerializeField] private float coefficientOfRestitution = 0.5f;
         [SerializeField] private float momentumMinimum = 0.01f;
         [SerializeField] private float mass = 10f;
+        [SerializeField] private float slideCapsuleHeight = 1f;
+        [SerializeField] private float slideCapsuleOffset = .5f;
+        [SerializeField] private float normalCapsuleHeight = 2f;
+        [SerializeField] private float normalCapsuleOffset = 1f;
         [Header("Walk")]
         [SerializeField] private float groundedMoveSpeed = 5f;
         [SerializeField] private float orientationSharpness = 10f;
@@ -138,7 +142,21 @@ namespace Player
             inputProvider.onRun += UpdateRun;
             inputProvider.onJump += PerformJump;
         }
-        
+
+        private void Update()
+        {
+            if (characterMovementMode == MovementMode.Slide)
+            {
+                motor.Capsule.height = slideCapsuleHeight;
+                motor.Capsule.center = new Vector3(0, slideCapsuleOffset,0);
+            }
+            else
+            {
+                motor.Capsule.height = normalCapsuleHeight;
+                motor.Capsule.center = new Vector3(0, normalCapsuleOffset,0);
+            }
+        }
+
         private void UpdateState()
         {
             if (shouldWallRun)
