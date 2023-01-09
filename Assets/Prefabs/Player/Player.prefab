@@ -959,7 +959,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8646695859555911765
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -976,7 +976,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!136 &8646695859548536072
 CapsuleCollider:
   m_ObjectHideFlags: 8
@@ -1062,6 +1062,10 @@ MonoBehaviour:
   coefficientOfRestitution: 0.5
   momentumMinimum: 0.01
   mass: 1.4
+  slideCapsuleHeight: 1
+  slideCapsuleOffset: 0.5
+  normalCapsuleHeight: 2
+  normalCapsuleOffset: 1
   groundedMoveSpeed: 5
   orientationSharpness: 10
   walkSharpness: 10
@@ -1076,6 +1080,8 @@ MonoBehaviour:
   jumpHoldGravityMultiplier: 4
   airDrag: 0.05
   airControlForce: 10
+  aerialJumpMax: 1
+  aerialJumpDirectionInfluence: 0.5
   wallRunGravity: 8
   wallRunSpeed: 22
   wallRunYBoost: 11
