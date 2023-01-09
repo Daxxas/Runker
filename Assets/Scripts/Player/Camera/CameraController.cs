@@ -1,5 +1,6 @@
 ﻿using System;
 using Cinemachine;
+using Player.Camera;
 using UnityEngine;
 
 namespace Player
@@ -13,7 +14,7 @@ namespace Player
         [SerializeField] private CinemachineRecomposer cinemachineRecomposer;
 
         [Header("Impulses")] 
-        [SerializeField] private CinemachineImpulseSource landImpulse;
+        [SerializeField] private CameraTiltImpulse landImpulse;
         [SerializeField] private float landImpulseAmplitude = 1f;
         
         [Header("Offsets")]
@@ -25,11 +26,10 @@ namespace Player
 
         private void Start()
         {
-            // characterController.onLand += () =>
-            // {
-            //     Debug.Log("characterController.Motor.Velocity: " + characterController.Motor.Velocity);
-            //     landImpulse.GenerateImpulseWithForce(characterController.Motor.Velocity.y * landImpulseAmplitude);
-            // };
+            characterController.onLand += () =>
+            {
+                landImpulse.Impulse();
+            };
         }
         Vector3 characterForwardUpdate;
 

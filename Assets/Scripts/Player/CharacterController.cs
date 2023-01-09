@@ -517,6 +517,7 @@ namespace Player
 
         public void OnGroundHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, ref HitStabilityReport hitStabilityReport)
         {
+            Debug.Log(motor.Velocity);
             aerialJumpCount = 0;
         }
         
