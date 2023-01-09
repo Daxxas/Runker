@@ -150,13 +150,11 @@ namespace Player
         {
             if (characterMovementMode == MovementMode.Slide)
             {
-                motor.Capsule.height = slideCapsuleHeight;
-                motor.Capsule.center = new Vector3(0, slideCapsuleOffset,0);
+                motor.SetCapsuleDimensions(motor.Capsule.radius, slideCapsuleHeight, slideCapsuleOffset);
             }
             else
             {
-                motor.Capsule.height = normalCapsuleHeight;
-                motor.Capsule.center = new Vector3(0, normalCapsuleOffset,0);
+                motor.SetCapsuleDimensions(motor.Capsule.radius, normalCapsuleHeight, normalCapsuleOffset);
             }
         }
 
