@@ -71,6 +71,24 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""EscapeY"",
+                    ""type"": ""Value"",
+                    ""id"": ""2ad92a2b-f682-4e00-9655-a769b6dd8551"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""EscapeX"",
+                    ""type"": ""Value"",
+                    ""id"": ""7f863c60-5e2c-4bb9-9240-edb34ffbc00e"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -172,6 +190,72 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""action"": ""Run"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""68a89b69-0c50-42da-a779-cf78988eec05"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EscapeY"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""1441a61b-fdfe-4753-8128-b2f5b7a31bf6"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EscapeY"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""7d4a3c19-08c4-4064-9f3b-f9c9b42306ed"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EscapeY"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""54962370-fa14-4ed2-9376-6abad2c30be0"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EscapeX"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""c1ea4975-26bc-4609-a5ec-1cb49432fb54"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EscapeX"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""70862400-60bd-4a31-9dbe-39b0e1333a97"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EscapeX"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -185,6 +269,8 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         m_Main_Jump = m_Main.FindAction("Jump", throwIfNotFound: true);
         m_Main_Zoom = m_Main.FindAction("Zoom", throwIfNotFound: true);
         m_Main_Run = m_Main.FindAction("Run", throwIfNotFound: true);
+        m_Main_EscapeY = m_Main.FindAction("EscapeY", throwIfNotFound: true);
+        m_Main_EscapeX = m_Main.FindAction("EscapeX", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -249,6 +335,8 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
     private readonly InputAction m_Main_Jump;
     private readonly InputAction m_Main_Zoom;
     private readonly InputAction m_Main_Run;
+    private readonly InputAction m_Main_EscapeY;
+    private readonly InputAction m_Main_EscapeX;
     public struct MainActions
     {
         private @MainInputs m_Wrapper;
@@ -258,6 +346,8 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         public InputAction @Jump => m_Wrapper.m_Main_Jump;
         public InputAction @Zoom => m_Wrapper.m_Main_Zoom;
         public InputAction @Run => m_Wrapper.m_Main_Run;
+        public InputAction @EscapeY => m_Wrapper.m_Main_EscapeY;
+        public InputAction @EscapeX => m_Wrapper.m_Main_EscapeX;
         public InputActionMap Get() { return m_Wrapper.m_Main; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -282,6 +372,12 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @Run.started -= m_Wrapper.m_MainActionsCallbackInterface.OnRun;
                 @Run.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnRun;
                 @Run.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnRun;
+                @EscapeY.started -= m_Wrapper.m_MainActionsCallbackInterface.OnEscapeY;
+                @EscapeY.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnEscapeY;
+                @EscapeY.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnEscapeY;
+                @EscapeX.started -= m_Wrapper.m_MainActionsCallbackInterface.OnEscapeX;
+                @EscapeX.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnEscapeX;
+                @EscapeX.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnEscapeX;
             }
             m_Wrapper.m_MainActionsCallbackInterface = instance;
             if (instance != null)
@@ -301,6 +397,12 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @Run.started += instance.OnRun;
                 @Run.performed += instance.OnRun;
                 @Run.canceled += instance.OnRun;
+                @EscapeY.started += instance.OnEscapeY;
+                @EscapeY.performed += instance.OnEscapeY;
+                @EscapeY.canceled += instance.OnEscapeY;
+                @EscapeX.started += instance.OnEscapeX;
+                @EscapeX.performed += instance.OnEscapeX;
+                @EscapeX.canceled += instance.OnEscapeX;
             }
         }
     }
@@ -312,5 +414,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
+        void OnEscapeY(InputAction.CallbackContext context);
+        void OnEscapeX(InputAction.CallbackContext context);
     }
 }

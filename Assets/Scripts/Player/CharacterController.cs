@@ -144,6 +144,7 @@ namespace Player
             inputProvider.onCrouch += UpdateCrouch;
             inputProvider.onRun += UpdateRun;
             inputProvider.onJump += PerformJump;
+            inputProvider.onEscape += PerformEscape;
         }
 
         private void Update()
@@ -191,6 +192,11 @@ namespace Player
             }
         }
 
+        private void PerformEscape(Vector2 direction)
+        {
+            Debug.Log("Escape ! " + direction); 
+        }
+        
         private void PerformJump(bool jumpPressed)
         {
             if (jumpPressed)

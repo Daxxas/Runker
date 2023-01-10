@@ -10,6 +10,7 @@ namespace Player.Inputs
         public Action<bool> onRun;
         public Action<bool> onJump;
         public Action<float> onScroll;
+        public Action<Vector2> onEscape;
 
         protected Vector2 moveDirection;
         protected  Vector3 moveDirectionV3;
