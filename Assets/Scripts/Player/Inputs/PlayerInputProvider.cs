@@ -7,6 +7,8 @@ namespace Player.Inputs
         private MainInputs mainInputs;
 
         [SerializeField] private float escapePressMaxTime = 0.2f;
+        [SerializeField] private int pressAmountMax = 2;
+        private int pressCount = 0;
         private Vector2 previousEscape = Vector2.zero;
         private float lastEscapePressTime = 0f;
 
@@ -16,7 +18,6 @@ namespace Player.Inputs
             mainInputs.Main.Move.performed += context => onMove?.Invoke(context.ReadValue<Vector2>());
             mainInputs.Main.Move.canceled += context => onMove?.Invoke(context.ReadValue<Vector2>());
             
-            // TODO : Code double tap behaviour
             mainInputs.Main.EscapeY.performed += context =>
             {                
                 EscapePress(new Vector2(0, context.ReadValue<float>()));
@@ -45,8 +46,7 @@ namespace Player.Inputs
             {
                 onEscape?.Invoke(direction);
             }
-            
-            
+
             previousEscape = direction;
             lastEscapePressTime = Time.time;
         }

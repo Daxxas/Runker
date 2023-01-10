@@ -62,10 +62,13 @@ namespace Player
         [SerializeField] private float wallJumpForwardBoost = 2f;
         [SerializeField] [Range(0f, 90f)] private float wallJumpAngle = 2f;
         [SerializeField] private int wallJumpDisabledFrames = 5;
-        
+        [Header("Escape")] 
+        [SerializeField] private float escapeVelocity = 5f;
+        [SerializeField] private float escapeCooldown = 1f;
         // Events for external uses
         public Action onJump;
         public Action onLand;
+        public Action<Vector2> onEscape;
         
         // Components
         private InputProvider inputProvider;
@@ -92,15 +95,18 @@ namespace Player
         private bool jumpHold  = false;
         private int aerialJumpCount = 0;
         
+        // Escape
+        private float lastEscapeTime;
+        private Vector2 lastEscapeDirection;
+        
         // Wall Jump
         private int wallJumpFrameCount = 0;
         private bool wallJumpPreventingWallRun => wallJumpFrameCount < wallJumpDisabledFrames;
-        
+
         // Wallrun
         RaycastHit wallHit;
         public RaycastHit WallHit => wallHit;
         private TouchingWallState touchingWall = TouchingWallState.None;
-
         public TouchingWallState TouchingWall => touchingWall;
         private TouchingWallState previousTouchWall = TouchingWallState.None;
         private Vector3 previousVelocity = Vector3.zero;
@@ -194,7 +200,15 @@ namespace Player
 
         private void PerformEscape(Vector2 direction)
         {
-            Debug.Log("Escape ! " + direction); 
+            if (Time.time < lastEscapeTime + escapeCooldown)
+                return;
+
+            Vector3 correctedDirection = new Vector3(direction.x, 0, direction.y);
+            correctedDirection = GetInputOrientationAccordingToCharacterForward(correctedDirection);
+            momentum = correctedDirection * escapeVelocity;
+            lastEscapeTime = Time.time;
+            lastEscapeDirection = direction;
+            onEscape?.Invoke(lastEscapeDirection);
         }
         
         private void PerformJump(bool jumpPressed)
@@ -314,9 +328,7 @@ namespace Player
                 momentum = Vector3.zero;
             }
             // Get forward according to camera
-            forwardFromCamera = cameraTransform.rotation * inputProvider.MoveDirectionV3;
-            Vector3 inputRight = Vector3.Cross(forwardFromCamera, motor.CharacterUp);
-            Vector3 characterOrientation = Vector3.Cross(effectiveGroundNormal, inputRight).normalized * forwardFromCamera.magnitude;
+            Vector3 correctedInput = GetInputOrientationAccordingToCharacterForward(inputProvider.MoveDirectionV3);
             
             if (characterMovementMode == MovementMode.Slide) 
             {
@@ -342,7 +354,7 @@ namespace Player
                 // Everything is momentum, even walking
                 float targetSpeed = !isRunning ? groundedMoveSpeed : groundedRunSpeed;
                 float lerpSharpness = !isRunning ? walkSharpness : runSharpness;
-                Vector3 targetVelocity = characterOrientation * targetSpeed;
+                Vector3 targetVelocity = correctedInput * targetSpeed;
                 momentum = Vector3.Lerp(momentum, targetVelocity, 1f - Mathf.Exp(-lerpSharpness * deltaTime));
                 currentVelocity = momentum;
             }
@@ -553,6 +565,14 @@ namespace Player
         public void OnDiscreteCollisionDetected(Collider hitCollider)
         {
 
+        }
+
+        private Vector3 GetInputOrientationAccordingToCharacterForward(Vector3 inputDirection)
+        {
+            forwardFromCamera = cameraTransform.rotation * inputDirection;
+            Vector3 inputRight = Vector3.Cross(forwardFromCamera, motor.CharacterUp);
+            Vector3 correctedInput = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized * forwardFromCamera.magnitude;
+            return correctedInput;
         }
         
         #if UNITY_EDITOR

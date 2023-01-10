@@ -25,6 +25,12 @@ namespace Player
         private void Start()
         {
             characterController.onJump += () => { animator.SetTrigger("onJump");};
+            characterController.onEscape += (Vector2 direction) =>
+            {
+                animator.SetFloat("escapeDirectionX", direction.x);
+                animator.SetFloat("escapeDirectionY", direction.y);
+                animator.SetTrigger("onEscape");
+            };
         }
 
         private void Update()
