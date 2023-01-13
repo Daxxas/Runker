@@ -36,6 +36,7 @@ namespace Player
         [SerializeField] private float slideBoost = 5f;
         [SerializeField] private float slideBoostMinimumHorizontalVelocity = 5f;
         [SerializeField] private float slideGroundTimeMinimum = 3f;
+        [SerializeField] private float slideMass = 3f;
         [Header("Jump")] 
         [SerializeField] [Range(0f, 90f)] private float jumpAngle = 90f; 
         [SerializeField] private float jumpForce = 5f;
@@ -44,6 +45,7 @@ namespace Player
         [SerializeField] private float airControlForce = 0.01f;
         [SerializeField] private int aerialJumpMax = 1;
         [SerializeField] [Range(0f, 1f)] private float aerialJumpDirectionInfluence = 1f;
+        [SerializeField] private float jumpBufferDuration = .2f;
         [Header("Wallrun")]
         [SerializeField] private float wallRunGravity = 9.81f;
         [SerializeField] private float wallRunSpeed = 7f;
@@ -93,6 +95,7 @@ namespace Player
         private bool inputSliding = false;
         private bool jumpRequest = false;
         private bool jumpHold  = false;
+        private float lastJumpBufferTime = 0f;
         private int aerialJumpCount = 0;
         
         // Escape
@@ -215,6 +218,7 @@ namespace Player
         {
             if (jumpPressed)
             {
+                lastJumpBufferTime = Time.time;
                 jumpRequest = true;
                 jumpHold = true;
             }
@@ -365,12 +369,18 @@ namespace Player
                 if (!motor.GroundingStatus.IsStableOnGround)
                 {
                     float adaptedGravity = gravity;
+                    float adaptedMass = mass;
                     if (!jumpHold && momentum.y > 0f)
                     {
                         adaptedGravity = gravity * jumpHoldGravityMultiplier;
                     }
+
+                    if (characterMovementMode == MovementMode.Slide)
+                    {
+                        adaptedMass = slideMass;
+                    }
                     
-                    momentum += Vector3.down * (adaptedGravity * mass * deltaTime);
+                    momentum += Vector3.down * (adaptedGravity * adaptedMass * deltaTime);
                     
                     // Air control
                     Vector3 airControl = forwardFromCamera * (airControlForce * deltaTime);
@@ -404,7 +414,7 @@ namespace Player
             }
             
             // Jump handling when grounded
-            if (jumpRequest && (motor.GroundingStatus.IsStableOnGround || aerialJumpCount < aerialJumpMax))
+            if (jumpRequest && Time.time < lastJumpBufferTime + jumpBufferDuration && (motor.GroundingStatus.IsStableOnGround || aerialJumpCount < aerialJumpMax))
             {
                 if (!motor.GroundingStatus.IsStableOnGround)
                 {

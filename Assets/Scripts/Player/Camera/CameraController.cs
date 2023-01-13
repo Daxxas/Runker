@@ -79,15 +79,7 @@ namespace Player
         {
             if (characterController.CharacterMovementMode == CharacterController.MovementMode.Wallrun)
             {
-                // Adjust camera rotation when wallrunning when it's not straight walls
-                if (characterController.TouchingWall == CharacterController.TouchingWallState.Right)
-                {
-                    cinemachine.m_XAxis.Value += Vector3.Angle(characterForwardUpdate, characterController.transform.forward);
-                }
-                else
-                {
-                    cinemachine.m_XAxis.Value -= Vector3.Angle(characterForwardUpdate, characterController.transform.forward);
-                }
+                cinemachine.m_XAxis.Value += Vector3.SignedAngle(characterForwardUpdate, characterController.transform.forward, characterController.Motor.CharacterUp);
             }
         }
 
