@@ -347,8 +347,11 @@ namespace Player
                 
                 // Redirect target velocity along ramp instead of being perpendicular to ramp
                 targetVelocity = motor.GetDirectionTangentToSurface(targetVelocity, effectiveGroundNormal) * targetVelocity.magnitude;
+
+                // momentum = targetVelocity.normalized * momentum.magnitude;
                 
                 momentum = Vector3.Slerp(momentum, targetVelocity, 1f - Mathf.Exp(-slideSharpness * deltaTime));
+
                 currentVelocity = momentum;
             } 
             
