@@ -95,7 +95,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 {
                     ""name"": ""ZQSD"",
                     ""id"": ""233cd02a-2740-4349-b182-635356c62ccb"",
-                    ""path"": ""2DVector"",
+                    ""path"": ""2DVector(mode=2)"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

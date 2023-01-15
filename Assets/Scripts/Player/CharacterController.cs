@@ -213,6 +213,9 @@ namespace Player
             if (Time.time < lastEscapeTime + escapeCooldown)
                 return;
 
+            if (motor.GroundingStatus.IsStableOnGround && direction.y != 0)
+                return;
+            
             Vector3 correctedDirection = new Vector3(direction.x, 0, direction.y);
             correctedDirection = GetInputOrientationAccordingToCharacterForward(correctedDirection);
             momentum = correctedDirection * escapeVelocity;
