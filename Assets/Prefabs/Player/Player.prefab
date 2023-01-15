@@ -1056,7 +1056,7 @@ MonoBehaviour:
   normalCapsuleOffset: 1
   groundedMoveSpeed: 5
   orientationSharpness: 10
-  walkSharpness: 10
+  walkSharpness: 100
   groundedRunSpeed: 17
   runSharpness: 3
   slideSharpness: 0.5

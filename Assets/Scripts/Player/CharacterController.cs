@@ -213,6 +213,9 @@ namespace Player
             if (Time.time < lastEscapeTime + escapeCooldown)
                 return;
 
+            if (characterMovementMode == MovementMode.Wallrun)
+                return;
+
             if (motor.GroundingStatus.IsStableOnGround && direction.y != 0)
                 return;
             

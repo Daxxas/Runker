@@ -20,6 +20,7 @@ namespace Player
         [SerializeField] private float tiltPower = 1f;
         [SerializeField] private float tiltMax = 10f;
         [SerializeField] private float tiltSharpness = 1f;
+        [SerializeField] private float velocityTiltMultiplier = 0.5f;
         
         [Header("Impulses")] 
         [SerializeField] private CameraTiltImpulse landImpulse;
@@ -46,8 +47,9 @@ namespace Player
         private void Update()
         {
             characterForwardUpdate = characterController.transform.forward;
-
-            targetTilt = Mathf.Clamp(-characterController.Motor.Velocity.y, -tiltMax, tiltMax) * tiltPower;
+            
+            
+            targetTilt = Mathf.Clamp(-characterController.Motor.Velocity.y * velocityTiltMultiplier, -tiltMax, tiltMax) * tiltPower;
             cinemachineRecomposer.m_Tilt = Mathf.Lerp(cinemachineRecomposer.m_Tilt, targetTilt, Time.deltaTime * tiltSharpness);
 
             switch (characterController.CharacterMovementMode)
