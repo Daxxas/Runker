@@ -242,7 +242,7 @@ namespace Player
 
         private void SlideStart()
         {
-            Debug.Log("Slide start !");
+            // Redirect momentum along tangent to avoid momentum dragging player down when falling off a slope
             momentum = motor.GetDirectionTangentToSurface(momentum, motor.GroundingStatus.GroundNormal) * momentum.magnitude;
         }
 
@@ -467,35 +467,60 @@ namespace Player
             
             
             // Ray casting for walls
+            
+            // Lot of copy paste here :(
             Ray toWallRightRay = new Ray()
             {
                 origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
                 direction = motor.CharacterRight
             };
                 
+            Ray toWallRightForwardRay = new Ray()
+            {
+                origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
+                direction = motor.CharacterRight + motor.CharacterForward * 0.7f
+            };
+            
             Ray toWallLeftRay = new Ray()
             {
                 origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
                 direction = -motor.CharacterRight
             };
-
+            Ray toWallLeftForwardRay = new Ray()
+            {
+                origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
+                direction = -motor.CharacterRight + motor.CharacterForward * 0.7f
+            };
+            
             Debug.DrawRay(toWallRightRay.origin, toWallRightRay.direction, Color.magenta);
+            Debug.DrawRay(toWallRightForwardRay.origin, toWallRightForwardRay.direction, Color.magenta);
             Debug.DrawRay(toWallLeftRay.origin, toWallLeftRay.direction, Color.magenta);
+            Debug.DrawRay(toWallLeftForwardRay.origin, toWallLeftForwardRay.direction, Color.magenta);
             
             bool leftWall = Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance);
+            bool leftForwardWall = Physics.Raycast(toWallLeftForwardRay, out RaycastHit leftForwardHit, motor.Capsule.radius + wallRunDetectionDistance);
             bool rightWall = Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance);
+            bool rightForwardWall = Physics.Raycast(toWallRightForwardRay, out RaycastHit rightForwardHit, motor.Capsule.radius + wallRunDetectionDistance);
             
             if (leftWall && Vector3.Angle(leftHit.normal, Vector3.up) >= wallRunMinAngle)
             {
                 wallHit = leftHit;
                 touchingWall = TouchingWallState.Left;
-
+            }
+            else if (leftForwardWall && Vector3.Angle(leftForwardHit.normal, Vector3.up) >= wallRunMinAngle)
+            {
+                wallHit = leftForwardHit;
+                touchingWall = TouchingWallState.Left;
             }
             else if (rightWall && Vector3.Angle(rightHit.normal, Vector3.up) >= wallRunMinAngle)
             {
                 wallHit = rightHit;
                 touchingWall = TouchingWallState.Right;
-
+            }
+            else if (rightForwardWall && Vector3.Angle(rightForwardHit.normal, Vector3.up) >= wallRunMinAngle)
+            {
+                wallHit = rightForwardHit;
+                touchingWall = TouchingWallState.Right;
             }
             else
             {
