@@ -14,8 +14,14 @@ namespace Player
         [SerializeField] private CinemachineCameraOffset cinemachineCameraOffset;
         [SerializeField] private CinemachineRecomposer cinemachineRecomposer;
 
-        [FormerlySerializedAs("tiltVelocityCoef")]
-        [FormerlySerializedAs("tiltYCoef")]
+        [Header("FoV")] 
+        [SerializeField] private float minFov = 40f;
+        [SerializeField] private float maxFov = 50f;
+        [SerializeField] private float maxSpeedFov = 50f;
+        [SerializeField] private float sharpnessFov = 1f;
+        [SerializeField] private AnimationCurve interpolationFov;
+        
+        
         [Header("Tilt")] 
         [SerializeField] private float tiltPower = 1f;
         [SerializeField] private float tiltMax = 10f;
@@ -46,9 +52,12 @@ namespace Player
 
         private void Update()
         {
+            float targetFov = Mathf.Lerp(minFov, maxFov, interpolationFov.Evaluate(characterController.HorizontalVelocity.magnitude / maxSpeedFov));
+            cinemachine.m_Lens.FieldOfView = Mathf.Lerp(cinemachine.m_Lens.FieldOfView, targetFov, Time.deltaTime * sharpnessFov);
+            
+            
             characterForwardUpdate = characterController.transform.forward;
-            
-            
+
             targetTilt = Mathf.Clamp(-characterController.Motor.Velocity.y * velocityTiltMultiplier, -tiltMax, tiltMax) * tiltPower;
             cinemachineRecomposer.m_Tilt = Mathf.Lerp(cinemachineRecomposer.m_Tilt, targetTilt, Time.deltaTime * tiltSharpness);
 
