@@ -628,6 +628,7 @@ GameObject:
   - component: {fileID: 746883985650114452}
   - component: {fileID: 746883985650114443}
   - component: {fileID: 746883985650114441}
+  - component: {fileID: 6839924774292676897}
   m_Layer: 0
   m_Name: CM FreeLook1
   m_TagString: Untagged
@@ -774,7 +775,10 @@ MonoBehaviour:
   cinemachine: {fileID: 746883985650114448}
   cinemachineCameraOffset: {fileID: 746883985650114443}
   cinemachineRecomposer: {fileID: 746883985650114453}
-  landImpulse: {fileID: 746883986201518402}
+  tiltPower: 1
+  tiltMax: 10
+  tiltSharpness: 1
+  landImpulse: {fileID: 0}
   landImpulseAmplitude: 0.1
   slideOffset:
     position: {x: 1, y: -0.5, z: 8}
@@ -875,6 +879,22 @@ MonoBehaviour:
     m_FrequencyGain: 1
     m_Duration: 1
     m_NoiseOffsets: {x: 0, y: 0, z: 0}
+--- !u!114 &6839924774292676897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746883985650114449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb7194dc27b9df64c8beca7482ee8e0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerIndex: -1
+  AutoEnableInputs: 1
+  XYAxis: {fileID: -5630151704836100654, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  ZAxis: {fileID: 0}
 --- !u!1 &746883985666063344
 GameObject:
   m_ObjectHideFlags: 3

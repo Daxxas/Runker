@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace Player.Inputs
 {
@@ -26,6 +27,17 @@ namespace Player.Inputs
             mainInputs.Main.EscapeX.performed += context =>
             {
                 EscapePress(new Vector2(context.ReadValue<float>(), 0));
+            };
+
+            mainInputs.Main.ControllerEscapePerform.performed += context =>
+            {
+                Vector2 roundedMoveDirection = new Vector2(Mathf.RoundToInt(moveDirection.x), Mathf.RoundToInt(moveDirection.y));
+                if (roundedMoveDirection.x != 0 && roundedMoveDirection.y != 0)
+                {
+                    roundedMoveDirection.y = 0;
+                }
+                
+                onEscape?.Invoke(roundedMoveDirection);
             };
 
             mainInputs.Main.Jump.performed += context => onJump?.Invoke(context.ReadValue<float>() != 0f);

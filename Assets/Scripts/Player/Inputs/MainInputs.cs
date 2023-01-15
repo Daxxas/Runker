@@ -89,6 +89,15 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ControllerEscapePerform"",
+                    ""type"": ""Button"",
+                    ""id"": ""7a0c0716-b1cd-4bb3-ad51-aa4c9515ec99"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -149,6 +158,17 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""b3b4116e-56fb-4ffd-8aae-d22b2102d556"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""eb3e5d57-a497-40d1-946c-76b7ee2fb3ca"",
                     ""path"": ""<Keyboard>/leftCtrl"",
                     ""interactions"": """",
@@ -160,8 +180,30 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""90798ca2-b380-428d-ace2-c0f3517a213c"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""57405dc3-c564-4f28-a16a-8d7cd1ac9fdd"",
                     ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3c33d676-7a01-4b61-9d1e-5da48a4d0395"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -184,6 +226,17 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""adedfe6e-d753-4deb-acec-a051ff1b1769"",
                     ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Run"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""edcc2bca-8ba3-492e-8d38-3f6aa25b4488"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -256,6 +309,17 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""action"": ""EscapeX"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c3d2f958-09a3-4037-90ea-750a16f2f3de"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ControllerEscapePerform"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -271,6 +335,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         m_Main_Run = m_Main.FindAction("Run", throwIfNotFound: true);
         m_Main_EscapeY = m_Main.FindAction("EscapeY", throwIfNotFound: true);
         m_Main_EscapeX = m_Main.FindAction("EscapeX", throwIfNotFound: true);
+        m_Main_ControllerEscapePerform = m_Main.FindAction("ControllerEscapePerform", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -337,6 +402,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
     private readonly InputAction m_Main_Run;
     private readonly InputAction m_Main_EscapeY;
     private readonly InputAction m_Main_EscapeX;
+    private readonly InputAction m_Main_ControllerEscapePerform;
     public struct MainActions
     {
         private @MainInputs m_Wrapper;
@@ -348,6 +414,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         public InputAction @Run => m_Wrapper.m_Main_Run;
         public InputAction @EscapeY => m_Wrapper.m_Main_EscapeY;
         public InputAction @EscapeX => m_Wrapper.m_Main_EscapeX;
+        public InputAction @ControllerEscapePerform => m_Wrapper.m_Main_ControllerEscapePerform;
         public InputActionMap Get() { return m_Wrapper.m_Main; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -378,6 +445,9 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @EscapeX.started -= m_Wrapper.m_MainActionsCallbackInterface.OnEscapeX;
                 @EscapeX.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnEscapeX;
                 @EscapeX.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnEscapeX;
+                @ControllerEscapePerform.started -= m_Wrapper.m_MainActionsCallbackInterface.OnControllerEscapePerform;
+                @ControllerEscapePerform.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnControllerEscapePerform;
+                @ControllerEscapePerform.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnControllerEscapePerform;
             }
             m_Wrapper.m_MainActionsCallbackInterface = instance;
             if (instance != null)
@@ -403,6 +473,9 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @EscapeX.started += instance.OnEscapeX;
                 @EscapeX.performed += instance.OnEscapeX;
                 @EscapeX.canceled += instance.OnEscapeX;
+                @ControllerEscapePerform.started += instance.OnControllerEscapePerform;
+                @ControllerEscapePerform.performed += instance.OnControllerEscapePerform;
+                @ControllerEscapePerform.canceled += instance.OnControllerEscapePerform;
             }
         }
     }
@@ -416,5 +489,6 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         void OnRun(InputAction.CallbackContext context);
         void OnEscapeY(InputAction.CallbackContext context);
         void OnEscapeX(InputAction.CallbackContext context);
+        void OnControllerEscapePerform(InputAction.CallbackContext context);
     }
 }
