@@ -70,6 +70,7 @@ namespace Player
         // Events for external uses
         public Action onJump;
         public Action onLand;
+        public Action onSlide;
         public Action<Vector2> onEscape;
         
         // Components
@@ -181,6 +182,12 @@ namespace Player
                 // If we were airborn, it means we are landing
                 if(characterMovementMode == MovementMode.Airborn) 
                     onLand?.Invoke();
+
+                if (characterMovementMode != MovementMode.Slide)
+                {
+                    onSlide?.Invoke();
+                    SlideStart();
+                }
                 
                 characterMovementMode = MovementMode.Slide;
                 return;
@@ -231,6 +238,12 @@ namespace Player
         private void UpdateRun(bool isRun)
         {
             isRunning = isRun;
+        }
+
+        private void SlideStart()
+        {
+            Debug.Log("Slide start !");
+            momentum = motor.GetDirectionTangentToSurface(momentum, motor.GroundingStatus.GroundNormal) * momentum.magnitude;
         }
 
         private void UpdateCrouch(bool isCrouch)
