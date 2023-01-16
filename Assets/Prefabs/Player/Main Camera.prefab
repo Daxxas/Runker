@@ -720,7 +720,7 @@ MonoBehaviour:
   m_XAxis:
     Value: 0
     m_SpeedMode: 0
-    m_MaxSpeed: 300
+    m_MaxSpeed: 200
     m_AccelTime: 0.1
     m_DecelTime: 0.1
     m_InputAxisName: Mouse X
@@ -775,9 +775,20 @@ MonoBehaviour:
   cinemachine: {fileID: 746883985650114448}
   cinemachineCameraOffset: {fileID: 746883985650114443}
   cinemachineRecomposer: {fileID: 746883985650114453}
+  minFov: 40
+  maxFov: 50
+  maxSpeedFov: 50
+  sharpnessFov: 1
+  interpolationFov:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   tiltPower: 1
   tiltMax: 10
   tiltSharpness: 1
+  velocityTiltMultiplier: 0.5
   landImpulse: {fileID: 0}
   landImpulseAmplitude: 0.1
   slideOffset:
