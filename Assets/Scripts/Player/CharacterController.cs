@@ -71,6 +71,7 @@ namespace Player
         public Action onJump;
         public Action onLand;
         public Action onSlide;
+        public Action onLedgeClimb;
         public Action<Vector2> onEscape;
         
         // Components
@@ -480,7 +481,6 @@ namespace Player
                 origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
                 direction = motor.CharacterRight
             };
-                
             Ray toWallRightForwardRay = new Ray()
             {
                 origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
@@ -597,6 +597,7 @@ namespace Player
         public void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
             ref HitStabilityReport hitStabilityReport)
         {
+            // Register wall hit for wall run
             if (Motor.GroundingStatus.IsStableOnGround || hitStabilityReport.IsStable) return;
 
             float angle = Vector3.Angle(motor.CharacterUp, hitNormal);
@@ -610,7 +611,18 @@ namespace Player
                 };
             }
                 
-            // momentum = Vector3.ProjectOnPlane(momentum, hitNormalFlat).normalized * momentum.magnitude;
+            // Check for ledge climb
+            bool footWall = Physics.Raycast(transform.position, motor.CharacterForward, out RaycastHit footHit, motor.Capsule.radius + wallRunDetectionDistance);
+            bool headWall = Physics.Raycast(transform.position + Vector3.up * motor.Capsule.height, motor.CharacterForward, out RaycastHit headHit, motor.Capsule.radius + wallRunDetectionDistance);
+
+            if (footWall && !headWall)
+            {
+                // Ledge grab is just momentum boost on Y ?
+                onLedgeClimb?.Invoke();
+                momentum = motor.CharacterForward * 10f;
+                momentum.y = 10f;
+            }
+            
         }
 
         public void ProcessHitStabilityReport(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, Vector3 atCharacterPosition,

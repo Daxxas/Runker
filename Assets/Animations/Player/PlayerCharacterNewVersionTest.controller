@@ -1250,85 +1250,91 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: directionZ
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: speedMagnitude
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isSliding
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: velocityVertical
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: velocityHorizontal
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isGrounded
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: onJump
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isWallRunning
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isWallRight
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isRunning
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: onEscape
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: escapeDirectionX
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: escapeDirectionY
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
+  - m_Name: onLedgeClimb
+    m_Type: 9
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 0}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -1600,11 +1606,16 @@ AnimatorStateMachine:
     m_Position: {x: 450, y: 120, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: -3185294175352562428}
-    m_Position: {x: 650, y: -60, z: 0}
+    m_Position: {x: 850, y: -70, z: 0}
   m_AnyStateTransitions:
   - {fileID: 2201168235590983352}
   m_EntryTransitions: []
   m_StateMachineTransitions:
+  - first: {fileID: -8464086747903293821}
+    second:
+    - {fileID: 8942426420175912685}
+    - {fileID: -422375388307134327}
+    - {fileID: 6338580529906038380}
   - first: {fileID: -4361337829834519032}
     second:
     - {fileID: -5958253952399527843}
@@ -1616,21 +1627,16 @@ AnimatorStateMachine:
     - {fileID: -6910579060596198818}
     - {fileID: 6405240970932610590}
     - {fileID: -8133320139260021005}
-  - first: {fileID: 4960207951024959646}
-    second:
-    - {fileID: 8973902142581423423}
-  - first: {fileID: -8464086747903293821}
-    second:
-    - {fileID: 8942426420175912685}
-    - {fileID: -422375388307134327}
-    - {fileID: 6338580529906038380}
   - first: {fileID: -3185294175352562428}
     second:
     - {fileID: -5250093016372577300}
     - {fileID: 7122189914057451831}
     - {fileID: -6307729856743736967}
+  - first: {fileID: 4960207951024959646}
+    second:
+    - {fileID: 8973902142581423423}
   m_StateMachineBehaviours: []
-  m_AnyStatePosition: {x: 260, y: -50, z: 0}
+  m_AnyStatePosition: {x: 470, y: -200, z: 0}
   m_EntryPosition: {x: -50, y: 170, z: 0}
   m_ExitPosition: {x: 170, y: 290, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}

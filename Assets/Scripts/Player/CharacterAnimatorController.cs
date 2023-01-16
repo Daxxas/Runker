@@ -31,6 +31,10 @@ namespace Player
                 animator.SetFloat("escapeDirectionY", direction.y);
                 animator.SetTrigger("onEscape");
             };
+            // characterController.onLedgeClimb += () =>
+            // {
+            //     animator.SetTrigger("onLedgeClimb");
+            // };
         }
 
         private void Update()
