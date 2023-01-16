@@ -16,12 +16,6 @@ namespace Enemies
         // Update is called once per frame
         void Update()
         {
-            if (target == null)
-            {
-                Destroy(gameObject);
-                return;
-            }
-    
             Vector3 dir = target.position - transform.position;
             float distanceThisFrame = speed * Time.deltaTime;
     
@@ -33,9 +27,9 @@ namespace Enemies
     
             Quaternion lookRotation = Quaternion.LookRotation(dir);
             Vector3 rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * angularSpeed).eulerAngles;
-            transform.rotation = Quaternion.Euler(0f, rotation.y, 0f);
+            transform.rotation = Quaternion.Euler(rotation.x, rotation.y, rotation.z);
     
-            transform.Translate(dir.normalized * distanceThisFrame, Space.World);
+            transform.Translate(transform.forward * distanceThisFrame, Space.World);
         }
     }
 }

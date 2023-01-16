@@ -841,17 +841,17 @@ MonoBehaviour:
   m_TransparentLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_MinimumDistanceFromTarget: 2
+  m_MinimumDistanceFromTarget: 0.5
   m_AvoidObstacles: 1
-  m_DistanceLimit: 0
+  m_DistanceLimit: 0.1
   m_MinimumOcclusionTime: 0.05
-  m_CameraRadius: 0.1
+  m_CameraRadius: 5
   m_Strategy: 1
   m_MaximumEffort: 4
-  m_SmoothingTime: 0.317
-  m_Damping: 0.3
-  m_DampingWhenOccluded: 0.3
-  m_OptimalTargetDistance: 0
+  m_SmoothingTime: 0
+  m_Damping: 4.02
+  m_DampingWhenOccluded: 4.41
+  m_OptimalTargetDistance: 6
 --- !u!114 &746883985650114443
 MonoBehaviour:
   m_ObjectHideFlags: 0

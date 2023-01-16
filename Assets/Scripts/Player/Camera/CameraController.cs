@@ -55,7 +55,6 @@ namespace Player
             float targetFov = Mathf.Lerp(minFov, maxFov, interpolationFov.Evaluate(characterController.HorizontalVelocity.magnitude / maxSpeedFov));
             cinemachine.m_Lens.FieldOfView = Mathf.Lerp(cinemachine.m_Lens.FieldOfView, targetFov, Time.deltaTime * sharpnessFov);
             
-            
             characterForwardUpdate = characterController.transform.forward;
 
             targetTilt = Mathf.Clamp(-characterController.Motor.Velocity.y * velocityTiltMultiplier, -tiltMax, tiltMax) * tiltPower;

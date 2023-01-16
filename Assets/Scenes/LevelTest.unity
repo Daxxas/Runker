@@ -24544,7 +24544,7 @@ PrefabInstance:
     - target: {fileID: 746883985357733649, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 102.737404
+      value: 102.7
       objectReference: {fileID: 0}
     - target: {fileID: 746883985357733649, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
@@ -24554,7 +24554,7 @@ PrefabInstance:
     - target: {fileID: 746883985357733649, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -318.27725
+      value: -318.2
       objectReference: {fileID: 0}
     - target: {fileID: 746883985357733649, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
@@ -24661,21 +24661,6 @@ PrefabInstance:
       propertyPath: m_FollowOffset.z
       value: 11
       objectReference: {fileID: 0}
-    - target: {fileID: 746883985650114443, guid: b1ff6dc29413c374192da00c371147c4,
-        type: 3}
-      propertyPath: m_Offset.x
-      value: -0.03740813
-      objectReference: {fileID: 0}
-    - target: {fileID: 746883985650114443, guid: b1ff6dc29413c374192da00c371147c4,
-        type: 3}
-      propertyPath: m_Offset.y
-      value: 0.01873386
-      objectReference: {fileID: 0}
-    - target: {fileID: 746883985650114443, guid: b1ff6dc29413c374192da00c371147c4,
-        type: 3}
-      propertyPath: m_Offset.z
-      value: 0.07493545
-      objectReference: {fileID: 0}
     - target: {fileID: 746883985650114448, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_Follow
@@ -24718,6 +24703,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
       propertyPath: interpolationFoV.m_Curve.Array.data[0].time
       value: -0.00270027
       objectReference: {fileID: 0}
@@ -24725,6 +24715,16 @@ PrefabInstance:
         type: 3}
       propertyPath: interpolationFoV.m_Curve.Array.data[1].time
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[0].time
+      value: -0.0018001801
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[1].time
+      value: 0.9981998
       objectReference: {fileID: 0}
     - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
@@ -24738,12 +24738,32 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[0].value
+      value: -0.0041237115
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[1].value
+      value: 1.0061855
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
       propertyPath: interpolationFoV.m_Curve.Array.data[0].inWeight
       value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: interpolationFoV.m_Curve.Array.data[1].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[0].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[1].inWeight
       value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
@@ -24758,6 +24778,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[0].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[1].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
       propertyPath: interpolationFoV.m_Curve.Array.data[0].tangentMode
       value: 136
       objectReference: {fileID: 0}
@@ -24766,20 +24796,30 @@ PrefabInstance:
       propertyPath: interpolationFoV.m_Curve.Array.data[1].tangentMode
       value: 136
       objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[0].tangentMode
+      value: 136
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: interpolationFov.m_Curve.Array.data[1].tangentMode
+      value: 136
+      objectReference: {fileID: 0}
     - target: {fileID: 746883985650114455, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.037334464
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 746883985650114455, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.02225861
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 746883985650114455, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.07399993
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 746883985666063350, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
@@ -24834,12 +24874,12 @@ PrefabInstance:
     - target: {fileID: 746883986647138119, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.00023642014
+      value: -0.00023641839
       objectReference: {fileID: 0}
     - target: {fileID: 746883986647138119, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.0016150327
+      value: -0.0016150323
       objectReference: {fileID: 0}
     - target: {fileID: 746883986647138119, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
