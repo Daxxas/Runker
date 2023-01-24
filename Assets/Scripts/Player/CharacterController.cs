@@ -1,5 +1,6 @@
 using System;
 using KinematicCharacterController;
+using Player.Grapple;
 using Player.Inputs;
 using UnityEditor;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace Player
     {
         [Header("References")]
         [SerializeField] private Transform cameraTransform;
+        [SerializeField] private GrappleThrower grappleThrower;
         [Header("Parameters")]
         [Header("General")]
         [SerializeField] private float gravity = 30f;
@@ -94,6 +96,7 @@ namespace Player
         // Movement
         public Vector2 HorizontalVelocity => new Vector2(motor.Velocity.x, motor.Velocity.z);
         private Vector3 momentum = Vector3.zero;
+
         private float groundTime = 0f;
         private bool isRunning = false;
 
@@ -128,7 +131,6 @@ namespace Player
         private bool shouldWallRun = false;
         public bool ShouldWallRun => shouldWallRun;
 
-
         private MovementMode characterMovementMode = MovementMode.Airborn;
         public MovementMode CharacterMovementMode => characterMovementMode;
 
@@ -137,7 +139,8 @@ namespace Player
             Slide,
             Grounded,
             Airborn,
-            Wallrun
+            Wallrun,
+            Grapple
         }
         
         public enum TouchingWallState
@@ -272,8 +275,14 @@ namespace Player
                     currentVelocity += wallRunGripStrength * -wallHit.normal; // Apply grip velocity to stick on wall
                 }
             }
+
+            if (characterMovementMode is MovementMode.Grapple)
+            {
+                momentum += (grappleThrower.GrapplePoint - motor.transform.position).normalized * (grappleThrower.GrappleAcceleration * deltaTime);
+                currentVelocity = momentum;
+            }
             
-            // Jump handling when grounded
+            // Jump handling 
             if (jumpRequest && JumpBufferIsValid && (motor.GroundingStatus.IsStableOnGround || aerialJumpCount < aerialJumpMax))
             {
                 if (!motor.GroundingStatus.IsStableOnGround)
@@ -512,6 +521,23 @@ namespace Player
 
         private void UpdateState()
         {
+            if(grappleThrower.GrappleHit)
+            {
+                characterMovementMode = MovementMode.Grapple;
+
+                Vector3 grappleResistanceForce = (grappleThrower.GrapplePoint - motor.transform.position).normalized *
+                                                 grappleThrower.GrappleResistance;
+
+                float momentumOffsetFromGrappleResistance = (momentum.normalized - grappleResistanceForce.normalized).magnitude;
+                
+                Debug.Log(momentum.normalized + " - " + grappleResistanceForce.normalized + " difference magnitude = " + momentumOffsetFromGrappleResistance);
+                
+                if (momentumOffsetFromGrappleResistance >= grappleThrower.GrappleHoldPower)
+                    grappleThrower.GrappleHit = false;
+                
+                return;
+            }
+            
             if (shouldWallRun)
             {
                 characterMovementMode = MovementMode.Wallrun;
