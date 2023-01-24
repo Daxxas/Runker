@@ -67,6 +67,10 @@ namespace Player
         [Header("Escape")] 
         [SerializeField] private float escapeVelocity = 5f;
         [SerializeField] private float escapeCooldown = 1f;
+        
+        // TODO : Implement coyote time
+        [Header("Coyote")] 
+        [SerializeField] private float coyoteTime = 0.2f;
         // Events for external uses
         public Action onJump;
         public Action onLand;
