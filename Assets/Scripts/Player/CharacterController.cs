@@ -99,6 +99,7 @@ namespace Player
         private bool jumpHold  = false;
         private float lastJumpBufferTime = 0f;
         private int aerialJumpCount = 0;
+        private bool JumpBufferIsValid => Time.time < lastJumpBufferTime + jumpBufferDuration;
         
         // Escape
         private float lastEscapeTime;
@@ -289,7 +290,7 @@ namespace Player
             wallJumpFrameCount = 0; // Reset walljump frame count
             hasTouchedGroundSinceWallrun = false; 
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
-            if (jumpRequest) 
+            if (jumpRequest)
             {
                 jumpRequest = false;
                 wallRunCooldownTime = 0f; // Don't put wallrun on cooldown
@@ -425,7 +426,6 @@ namespace Player
                 
                 // Calculate wallrun direction
                 Vector3 wallRunDirection = motor.CharacterForward;
-
                 Vector3 targetVelocity = wallRunDirection * (wallRunSpeed * inputProvider.MoveDirection.y);
                 Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
@@ -437,7 +437,7 @@ namespace Player
             }
             
             // Jump handling when grounded
-            if (jumpRequest && Time.time < lastJumpBufferTime + jumpBufferDuration && (motor.GroundingStatus.IsStableOnGround || aerialJumpCount < aerialJumpMax))
+            if (jumpRequest && JumpBufferIsValid && (motor.GroundingStatus.IsStableOnGround || aerialJumpCount < aerialJumpMax))
             {
                 if (!motor.GroundingStatus.IsStableOnGround)
                 {
@@ -561,7 +561,8 @@ namespace Player
             Vector3 inputDirection = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
             bool inputAwayFromWall = (inputDirection - wallHit.normal).magnitude < 1f;
             
-            if(characterMovementMode == MovementMode.Wallrun && !wallJumpPreventingWallRun && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun || jumpRequest))
+            if(characterMovementMode == MovementMode.Wallrun && !wallJumpPreventingWallRun && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun ||
+                   (jumpRequest && JumpBufferIsValid)))
             {
                 onWallRunRelease?.Invoke();
                 WallRunEnd();
