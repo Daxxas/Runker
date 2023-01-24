@@ -175,173 +175,6 @@ namespace Player
             }
         }
 
-        private void UpdateState()
-        {
-            if (shouldWallRun)
-            {
-                characterMovementMode = MovementMode.Wallrun;
-                return;
-            }
-            
-            if (inputSliding && motor.GroundingStatus.IsStableOnGround)
-            {
-                // If we were airborn, it means we are landing
-                if(characterMovementMode == MovementMode.Airborn) 
-                    onLand?.Invoke();
-
-                if (characterMovementMode != MovementMode.Slide)
-                {
-                    onSlide?.Invoke();
-                    SlideStart();
-                }
-                
-                characterMovementMode = MovementMode.Slide;
-                return;
-            }
-            
-            if (motor.GroundingStatus.IsStableOnGround)
-            {
-                // TODO : Rework the if to avoid copy/paste code
-                // If we were airborn, it means we are landing
-                if(characterMovementMode == MovementMode.Airborn) 
-                    onLand?.Invoke();
-                
-                characterMovementMode = MovementMode.Grounded;
-            }
-            else
-            {
-                characterMovementMode = MovementMode.Airborn;
-            }
-        }
-
-        private void PerformEscape(Vector2 direction)
-        {
-            if (Time.time < lastEscapeTime + escapeCooldown)
-                return;
-
-            if (characterMovementMode == MovementMode.Wallrun)
-                return;
-
-            if (motor.GroundingStatus.IsStableOnGround && direction.y != 0)
-                return;
-            
-            Vector3 correctedDirection = new Vector3(direction.x, 0, direction.y);
-            correctedDirection = GetInputOrientationAccordingToCharacterForward(correctedDirection);
-            momentum = correctedDirection * escapeVelocity;
-            lastEscapeTime = Time.time;
-            lastEscapeDirection = direction;
-            onEscape?.Invoke(lastEscapeDirection);
-        }
-        
-        private void PerformJump(bool jumpPressed)
-        {
-            if (jumpPressed)
-            {
-                lastJumpBufferTime = Time.time;
-                jumpRequest = true;
-                jumpHold = true;
-            }
-            else
-            {
-                jumpHold = false;
-            }
-        }
-
-        private void UpdateRun(bool isRun)
-        {
-            isRunning = isRun;
-        }
-
-        private void SlideStart()
-        {
-            // Redirect momentum along tangent to avoid momentum dragging player down when falling off a slope
-            momentum = motor.GetDirectionTangentToSurface(momentum, motor.GroundingStatus.GroundNormal) * momentum.magnitude;
-        }
-
-        private void UpdateCrouch(bool isCrouch)
-        {
-            inputSliding = isCrouch; // Save input for controller
-            UpdateState(); // Force state update to update movement mode
-            
-            // On slide grounded
-            if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround) 
-            {
-
-                // Debug.Log("Slide ! " + HorizontalVelocity.magnitude + " > " + slideBoostMinimumHorizontalVelocity);
-                momentum = motor.Velocity; // Transfer velocity to momentum when sliding
-                if (HorizontalVelocity.magnitude > slideBoostMinimumHorizontalVelocity && groundTime > slideGroundTimeMinimum)
-                {
-                    // Debug.Log("Boost !");
-                    momentum += momentum.normalized * slideBoost; // Add slide boost
-                }
-                motor.BaseVelocity = Vector3.zero; // Velocity has been transfered to momentum
-                groundTime = 0f;
-            }
-        }
-
-        private void WallRunStart()
-        {
-            wallRunStartTime = Time.time; // Used to calculate wallrun hold duration
-            Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal); // Get Velocity direction tangent to ground
-            Vector3 wallRunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal); // Apply velocity direction to wall
-            momentum = wallRunDirection.normalized; // Kill momentum when wallrunning
-            momentum.y = Mathf.Max(momentum.y, wallRunYBoost); // Boost Y velocity at start of wallrun
-        }
-
-        private void WallRunEnd()
-        {
-            aerialJumpCount = 0; // Reset aerials after wallrun
-            wallJumpFrameCount = 0; // Reset walljump frame count
-            hasTouchedGroundSinceWallrun = false; 
-            momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
-            if (jumpRequest)
-            {
-                jumpRequest = false;
-                wallRunCooldownTime = 0f; // Don't put wallrun on cooldown
-                
-                float wallJumpAngleCoef = wallJumpAngle / 90f; // Calculate walljump angle coefficient
-                Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized; // Calculate walljump direction with coeffecient
-                momentum += jumpDirectionFromWall * wallJumpVelocity; // Apply walljump velocity
-                momentum += motor.CharacterForward * wallJumpForwardBoost; // Add forward boost
-
-            }
-            else
-            {
-                wallRunCooldownTime = Time.time; // Put wallrun on cooldown
-                momentum += wallHit.normal * wallRunReleaseVelocity;
-            }
-        }
-
-        public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
-        {
-            // Don't update rotation when sliding
-            if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround)
-                return;
-
-            if (characterMovementMode != MovementMode.Wallrun)
-            {
-                Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.forward, motor.CharacterUp).normalized;
-                if (cameraPlanarDirection.sqrMagnitude == 0f)
-                {
-                    // Get Target Direction
-                    cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.up, motor.CharacterUp).normalized;
-                }
-            
-                Vector3 smoothedLookInputDirection = Vector3.Slerp(motor.CharacterForward, cameraPlanarDirection, 1 - Mathf.Exp(-orientationSharpness * deltaTime)).normalized;
-
-                currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
-            }
-            else
-            {
-                Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
-                Vector3 wallrunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal);
-                wallrunDirection.y = 0;
-                
-                Quaternion targetRotation = Quaternion.LookRotation(wallrunDirection.normalized, motor.CharacterUp);
-                currentRotation = Quaternion.Lerp(currentRotation, targetRotation, 1f - Mathf.Exp(-wallRotationSharpness * deltaTime));
-            }
-        }
-
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             UpdateState();
@@ -463,6 +296,36 @@ namespace Player
                 momentum += jumpDirectionFromGround.normalized * jumpForce;
                 motor.ForceUnground();
                 currentVelocity = momentum; 
+            }
+        }
+
+        public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        {
+            // Don't update rotation when sliding
+            if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround)
+                return;
+
+            if (characterMovementMode != MovementMode.Wallrun)
+            {
+                Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.forward, motor.CharacterUp).normalized;
+                if (cameraPlanarDirection.sqrMagnitude == 0f)
+                {
+                    // Get Target Direction
+                    cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.up, motor.CharacterUp).normalized;
+                }
+            
+                Vector3 smoothedLookInputDirection = Vector3.Slerp(motor.CharacterForward, cameraPlanarDirection, 1 - Mathf.Exp(-orientationSharpness * deltaTime)).normalized;
+
+                currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
+            }
+            else
+            {
+                Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
+                Vector3 wallrunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal);
+                wallrunDirection.y = 0;
+                
+                Quaternion targetRotation = Quaternion.LookRotation(wallrunDirection.normalized, motor.CharacterUp);
+                currentRotation = Quaternion.Lerp(currentRotation, targetRotation, 1f - Mathf.Exp(-wallRotationSharpness * deltaTime));
             }
         }
 
@@ -644,9 +507,146 @@ namespace Player
 
         public void OnDiscreteCollisionDetected(Collider hitCollider)
         {
-
+            
         }
 
+        private void UpdateState()
+        {
+            if (shouldWallRun)
+            {
+                characterMovementMode = MovementMode.Wallrun;
+                return;
+            }
+            
+            if (inputSliding && motor.GroundingStatus.IsStableOnGround)
+            {
+                // If we were airborn, it means we are landing
+                if(characterMovementMode == MovementMode.Airborn) 
+                    onLand?.Invoke();
+
+                if (characterMovementMode != MovementMode.Slide)
+                {
+                    onSlide?.Invoke();
+                    SlideStart();
+                }
+                
+                characterMovementMode = MovementMode.Slide;
+                return;
+            }
+            
+            if (motor.GroundingStatus.IsStableOnGround)
+            {
+                // TODO : Rework the if to avoid copy/paste code
+                // If we were airborn, it means we are landing
+                if(characterMovementMode == MovementMode.Airborn) 
+                    onLand?.Invoke();
+                
+                characterMovementMode = MovementMode.Grounded;
+            }
+            else
+            {
+                characterMovementMode = MovementMode.Airborn;
+            }
+        }
+
+        private void PerformEscape(Vector2 direction)
+        {
+            if (Time.time < lastEscapeTime + escapeCooldown)
+                return;
+
+            if (characterMovementMode == MovementMode.Wallrun)
+                return;
+
+            if (motor.GroundingStatus.IsStableOnGround && direction.y != 0)
+                return;
+            
+            Vector3 correctedDirection = new Vector3(direction.x, 0, direction.y);
+            correctedDirection = GetInputOrientationAccordingToCharacterForward(correctedDirection);
+            momentum = correctedDirection * escapeVelocity;
+            lastEscapeTime = Time.time;
+            lastEscapeDirection = direction;
+            onEscape?.Invoke(lastEscapeDirection);
+        }
+        
+        private void PerformJump(bool jumpPressed)
+        {
+            if (jumpPressed)
+            {
+                lastJumpBufferTime = Time.time;
+                jumpRequest = true;
+                jumpHold = true;
+            }
+            else
+            {
+                jumpHold = false;
+            }
+        }
+
+        private void UpdateRun(bool isRun)
+        {
+            isRunning = isRun;
+        }
+
+        private void SlideStart()
+        {
+            // Redirect momentum along tangent to avoid momentum dragging player down when falling off a slope
+            momentum = motor.GetDirectionTangentToSurface(momentum, motor.GroundingStatus.GroundNormal) * momentum.magnitude;
+        }
+
+        private void UpdateCrouch(bool isCrouch)
+        {
+            inputSliding = isCrouch; // Save input for controller
+            UpdateState(); // Force state update to update movement mode
+            
+            // On slide grounded
+            if (characterMovementMode == MovementMode.Slide && motor.GroundingStatus.IsStableOnGround) 
+            {
+
+                // Debug.Log("Slide ! " + HorizontalVelocity.magnitude + " > " + slideBoostMinimumHorizontalVelocity);
+                momentum = motor.Velocity; // Transfer velocity to momentum when sliding
+                if (HorizontalVelocity.magnitude > slideBoostMinimumHorizontalVelocity && groundTime > slideGroundTimeMinimum)
+                {
+                    // Debug.Log("Boost !");
+                    momentum += momentum.normalized * slideBoost; // Add slide boost
+                }
+                motor.BaseVelocity = Vector3.zero; // Velocity has been transfered to momentum
+                groundTime = 0f;
+            }
+        }
+
+        private void WallRunStart()
+        {
+            wallRunStartTime = Time.time; // Used to calculate wallrun hold duration
+            Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal); // Get Velocity direction tangent to ground
+            Vector3 wallRunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal); // Apply velocity direction to wall
+            momentum = wallRunDirection.normalized; // Kill momentum when wallrunning
+            momentum.y = Mathf.Max(momentum.y, wallRunYBoost); // Boost Y velocity at start of wallrun
+        }
+
+        private void WallRunEnd()
+        {
+            aerialJumpCount = 0; // Reset aerials after wallrun
+            wallJumpFrameCount = 0; // Reset walljump frame count
+            hasTouchedGroundSinceWallrun = false; 
+            momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
+            if (jumpRequest)
+            {
+                jumpRequest = false;
+                wallRunCooldownTime = 0f; // Don't put wallrun on cooldown
+                
+                float wallJumpAngleCoef = wallJumpAngle / 90f; // Calculate walljump angle coefficient
+                Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized; // Calculate walljump direction with coeffecient
+                momentum += jumpDirectionFromWall * wallJumpVelocity; // Apply walljump velocity
+                momentum += motor.CharacterForward * wallJumpForwardBoost; // Add forward boost
+
+            }
+            else
+            {
+                wallRunCooldownTime = Time.time; // Put wallrun on cooldown
+                momentum += wallHit.normal * wallRunReleaseVelocity;
+            }
+        }
+        
         private Vector3 GetInputOrientationAccordingToCharacterForward(Vector3 inputDirection)
         {
             forwardFromCamera = cameraTransform.rotation * inputDirection;

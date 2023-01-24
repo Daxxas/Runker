@@ -18,6 +18,20 @@ namespace Player.Inputs
             mainInputs = new MainInputs();
             mainInputs.Main.Move.performed += context => onMove?.Invoke(context.ReadValue<Vector2>());
             mainInputs.Main.Move.canceled += context => onMove?.Invoke(context.ReadValue<Vector2>());
+
+            mainInputs.Main.Jump.performed += context => onJump?.Invoke(context.ReadValue<float>() != 0f);
+            mainInputs.Main.Jump.canceled += context => onJump?.Invoke(context.ReadValue<float>() != 0f);
+            
+            mainInputs.Main.Crouch.performed += context => onCrouch?.Invoke(context.ReadValue<float>() != 0f);
+            mainInputs.Main.Crouch.canceled += context => onCrouch?.Invoke(context.ReadValue<float>() != 0f);
+            
+            mainInputs.Main.Run.performed += context => onRun?.Invoke(context.ReadValue<float>() != 0f);
+            mainInputs.Main.Run.canceled += context => onRun?.Invoke(context.ReadValue<float>() != 0f);
+
+            mainInputs.Main.Grapple.performed += context => onGrapple?.Invoke(context.ReadValue<float>() != 0f);
+            mainInputs.Main.Grapple.canceled += context => onGrapple?.Invoke(context.ReadValue<float>() != 0f);
+            
+            mainInputs.Main.Zoom.performed += context => onScroll?.Invoke(context.ReadValue<float>());
             
             mainInputs.Main.EscapeY.performed += context =>
             {                
@@ -39,17 +53,6 @@ namespace Player.Inputs
                 
                 onEscape?.Invoke(roundedMoveDirection);
             };
-
-            mainInputs.Main.Jump.performed += context => onJump?.Invoke(context.ReadValue<float>() != 0f);
-            mainInputs.Main.Jump.canceled += context => onJump?.Invoke(context.ReadValue<float>() != 0f);
-            
-            mainInputs.Main.Crouch.performed += context => onCrouch?.Invoke(context.ReadValue<float>() != 0f);
-            mainInputs.Main.Crouch.canceled += context => onCrouch?.Invoke(context.ReadValue<float>() != 0f);
-            
-            mainInputs.Main.Run.performed += context => onRun?.Invoke(context.ReadValue<float>() != 0f);
-            mainInputs.Main.Run.canceled += context => onRun?.Invoke(context.ReadValue<float>() != 0f);
-
-            mainInputs.Main.Zoom.performed += context => onScroll?.Invoke(context.ReadValue<float>());
         }
 
         private void EscapePress(Vector2 direction)
