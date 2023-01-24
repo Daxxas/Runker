@@ -52,6 +52,8 @@ namespace Player
 
         private void Update()
         {
+            return;
+            
             float targetFov = Mathf.Lerp(minFov, maxFov, interpolationFov.Evaluate(characterController.HorizontalVelocity.magnitude / maxSpeedFov));
             cinemachine.m_Lens.FieldOfView = Mathf.Lerp(cinemachine.m_Lens.FieldOfView, targetFov, Time.deltaTime * sharpnessFov);
             

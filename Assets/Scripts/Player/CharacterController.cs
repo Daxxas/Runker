@@ -14,7 +14,7 @@ namespace Player
     {
         [Header("References")]
         [SerializeField] private Transform cameraTransform;
-        [SerializeField] private GrappleThrower grappleThrower;
+        [SerializeField] private GrappleController grappleController;
         [Header("Parameters")]
         [Header("General")]
         [SerializeField] private float gravity = 30f;
@@ -164,6 +164,20 @@ namespace Player
             inputProvider.onRun += UpdateRun;
             inputProvider.onJump += PerformJump;
             inputProvider.onEscape += PerformEscape;
+            grappleController.onGrapple += () =>
+            {
+                // TODO : this is copy pasted
+
+                Vector3 grapplePullDirection = (grappleController.GrapplePoint - motor.transform.position).normalized;
+                float momentumMinusGrapplePull = (momentum.normalized - grapplePullDirection).magnitude;
+
+                Debug.Log("Grapple attach : " + momentumMinusGrapplePull + " < " + grappleController.GrappleMinHoldPower);
+ 
+                
+                // TODO : Rework this condition to be more about pull and momentum forces directly rather than pull and momentum direction difference
+                if (momentumMinusGrapplePull < grappleController.GrappleMinHoldPower) // || momentumMinusGrapplePull > grappleController.GrappleMaxHoldPower)
+                    momentum = Vector3.zero;
+            };
         }
 
         private void Update()
@@ -278,7 +292,12 @@ namespace Player
 
             if (characterMovementMode is MovementMode.Grapple)
             {
-                momentum += (grappleThrower.GrapplePoint - motor.transform.position).normalized * (grappleThrower.GrappleAcceleration * deltaTime);
+                momentum += (grappleController.GrapplePoint - motor.transform.position).normalized * (grappleController.GrappleAcceleration * deltaTime);
+                
+                Vector3 grappleAirControlAcceleration = correctedInput * grappleController.GrappleAirControl;
+                momentum += grappleAirControlAcceleration;
+
+                
                 currentVelocity = momentum;
             }
             
@@ -521,19 +540,20 @@ namespace Player
 
         private void UpdateState()
         {
-            if(grappleThrower.GrappleHit)
+            if(grappleController.GrappleHit)
             {
                 characterMovementMode = MovementMode.Grapple;
 
-                Vector3 grappleResistanceForce = (grappleThrower.GrapplePoint - motor.transform.position).normalized *
-                                                 grappleThrower.GrappleResistance;
+                Vector3 grapplePullDirection = (grappleController.GrapplePoint - motor.transform.position).normalized;
+                float momentumMinusGrapplePull = (momentum.normalized - grapplePullDirection).magnitude;
+                
+                // Debug.Log(momentum.normalized + " - " + grapplePullDirection + " difference magnitude = " + momentumMinusGrapplePull);
 
-                float momentumOffsetFromGrappleResistance = (momentum.normalized - grappleResistanceForce.normalized).magnitude;
-                
-                Debug.Log(momentum.normalized + " - " + grappleResistanceForce.normalized + " difference magnitude = " + momentumOffsetFromGrappleResistance);
-                
-                if (momentumOffsetFromGrappleResistance >= grappleThrower.GrappleHoldPower)
-                    grappleThrower.GrappleHit = false;
+                if (momentumMinusGrapplePull >= grappleController.GrappleMinHoldPower)
+                {
+                    Debug.Log("Release Grapple : " + momentumMinusGrapplePull + " >= " + grappleController.GrappleMinHoldPower); 
+                    grappleController.GrappleHit = false;
+                }
                 
                 return;
             }

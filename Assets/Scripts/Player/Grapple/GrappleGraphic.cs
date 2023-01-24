@@ -5,7 +5,7 @@ namespace Player.Grapple
 {
     public class GrappleGraphic : MonoBehaviour
     {
-        [SerializeField] private GrappleThrower grappleThrower;
+        [SerializeField] private GrappleController grappleController;
         private LineRenderer lineRenderer;
 
         private void Awake()
@@ -15,10 +15,10 @@ namespace Player.Grapple
 
         private void Update()
         {
-            if (grappleThrower.GrappleHit)
+            if (grappleController.GrappleHit)
             {
                 lineRenderer.positionCount = 2;
-                lineRenderer.SetPositions(new []{grappleThrower.GrappleOrigin.position, grappleThrower.GrapplePoint});
+                lineRenderer.SetPositions(new []{grappleController.GrappleOrigin.position, grappleController.GrapplePoint});
             }
             else
             {

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Player.Grapple
 {
-    public class GrappleThrower : MonoBehaviour
+    public class GrappleController : MonoBehaviour
     {
         [Header("References")] 
         [SerializeField] private Transform grappleOrigin;
@@ -13,12 +13,17 @@ namespace Player.Grapple
         [SerializeField] private Transform camera;
         [SerializeField] private float grappleMaxDistance = 15f;
         [SerializeField] private LayerMask grappleMask;
+        [SerializeField] private float grappleAirControl = 1f;
+        public float GrappleAirControl => grappleAirControl;
         [SerializeField] private float grappleAcceleration;
         public float GrappleAcceleration => grappleAcceleration;
         [SerializeField] private float grappleResistance = 10f;
         public float GrappleResistance => grappleResistance;
-        [SerializeField] private float grappleHoldPower = 100f;
-        public float GrappleHoldPower => grappleHoldPower;
+        [SerializeField] private float grappleMinHoldPower = 1.1f;
+        public float GrappleMinHoldPower => grappleMinHoldPower;
+        
+        [SerializeField] private float grappleMaxHoldPower = 1.9f;
+        public float GrappleMaxHoldPower => grappleMaxHoldPower;
 
         private InputProvider inputProvider;
 

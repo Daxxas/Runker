@@ -142,7 +142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68e12f7c521b4de698e320b0a8ed2a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grappleThrower: {fileID: 1045441038}
+  grappleController: {fileID: 1045441038}
 --- !u!1 &8646695859250006196
 GameObject:
   m_ObjectHideFlags: 0
@@ -1191,7 +1191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 0}
-  grappleThrower: {fileID: 1045441038}
+  grappleController: {fileID: 1045441038}
   gravity: 9.81
   coefficientOfRestitution: 0.5
   momentumMinimum: 0.01
@@ -1283,9 +1283,10 @@ MonoBehaviour:
   grappleMask:
     serializedVersion: 2
     m_Bits: 55
+  grappleAirControl: 0.1
   grappleAcceleration: 15
   grappleResistance: 10
-  grappleHoldPower: 1
+  grappleHoldPower: 1.1
 --- !u!1 &8646695859548502919
 GameObject:
   m_ObjectHideFlags: 0
