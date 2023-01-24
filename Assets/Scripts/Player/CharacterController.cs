@@ -537,6 +537,12 @@ namespace Player
                 touchingWall = TouchingWallState.None;
             }
 
+            // Edge case if try to wallrun on a corner
+            if (leftForwardWall && rightForwardWall)
+            {
+                touchingWall = TouchingWallState.None;
+            }
+
             bool wallRunOnCooldown = Time.time < wallRunCooldownTime + wallRunCooldown;
             bool canHoldOnWall = Time.time < wallRunStartTime + wallRunHoldDuration;
             
