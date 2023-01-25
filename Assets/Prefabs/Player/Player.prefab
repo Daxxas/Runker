@@ -1284,7 +1284,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 55
   grappleAirControl: 0.1
-  grappleAcceleration: 15
+  grappleAcceleration: 20
   grappleResistance: 10
   grappleStopMomentumThreshold: 50
   grappleMinHoldPower: 1.1
