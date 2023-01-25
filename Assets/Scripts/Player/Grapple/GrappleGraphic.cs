@@ -15,7 +15,7 @@ namespace Player.Grapple
 
         private void Update()
         {
-            if (grappleController.GrappleHit)
+            if (grappleController.CurrentGrappleState != GrappleController.GrappleState.None)
             {
                 lineRenderer.positionCount = 2;
                 lineRenderer.SetPositions(new []{grappleController.GrappleOrigin.position, grappleController.GrapplePoint});

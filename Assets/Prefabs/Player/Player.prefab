@@ -1104,7 +1104,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8646695859555911765
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1121,7 +1121,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!136 &8646695859548536072
 CapsuleCollider:
   m_ObjectHideFlags: 8
@@ -1279,14 +1279,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grappleOrigin: {fileID: 8646695859548661753}
   camera: {fileID: 0}
-  grappleMaxDistance: 500
+  grappleMaxDistance: 50
   grappleMask:
     serializedVersion: 2
     m_Bits: 55
   grappleAirControl: 0.1
   grappleAcceleration: 15
   grappleResistance: 10
-  grappleHoldPower: 1.1
+  grappleStopMomentumThreshold: 50
+  grappleMinHoldPower: 1.1
+  grappleThrowSpeed: 90
 --- !u!1 &8646695859548502919
 GameObject:
   m_ObjectHideFlags: 0
