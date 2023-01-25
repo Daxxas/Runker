@@ -167,19 +167,7 @@ namespace Player
             grappleController.onGrapple += () =>
             {
                 motor.ForceUnground();
-                
-                // TODO : this is copy pasted
-                //
-                // Vector3 grapplePullForce = (grappleController.GrapplePoint - motor.transform.position);
-                // float momentumMinusGrapplePullDirectionDelta = (momentum.normalized - grapplePullForce.normalized).magnitude;
-                //
-                // Debug.Log("Grapple attach : " + momentum.magnitude + " > " + grappleController.GrappleStopMomentumThreshold);
-                //
-                // // TODO : Rework this condition to be more about pull and momentum forces directly rather than pull and momentum direction difference
-                // if (momentum.magnitude * momentumMinusGrapplePullDirectionDelta > grappleController.GrappleStopMomentumThreshold) // || momentumMinusGrapplePull > grappleController.GrappleMaxHoldPower)
-                //     momentum = Vector3.zero;
-                
-                
+
                 if (momentum.y < 0)
                     momentum.y = 0;
             };
@@ -548,18 +536,6 @@ namespace Player
             if(grappleController.GrappleHit)
             {
                 characterMovementMode = MovementMode.Grapple;
-
-                Vector3 grapplePullDirection = (grappleController.GrapplePoint - motor.transform.position).normalized;
-                float momentumMinusGrapplePull = (momentum.normalized - grapplePullDirection).magnitude;
-                
-                // Debug.Log(momentum.normalized + " - " + grapplePullDirection + " difference magnitude = " + momentumMinusGrapplePull);
-
-                if (momentumMinusGrapplePull >= grappleController.GrappleMinHoldPower)
-                {
-                    Debug.Log("Release Grapple : " + momentumMinusGrapplePull + " >= " + grappleController.GrappleMinHoldPower); 
-                    grappleController.ReleaseGrapple();
-                }
-                
                 return;
             }
             

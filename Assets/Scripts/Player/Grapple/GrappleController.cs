@@ -62,6 +62,10 @@ namespace Player.Grapple
                 {
                     ThrowGrapple();
                 }
+                else
+                {
+                    ReleaseGrapple();
+                }
             };
         }
 
