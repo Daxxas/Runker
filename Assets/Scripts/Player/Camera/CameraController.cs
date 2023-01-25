@@ -20,7 +20,9 @@ namespace Player
         [SerializeField] private float maxSpeedFov = 50f;
         [SerializeField] private float sharpnessFov = 1f;
         [SerializeField] private AnimationCurve interpolationFov;
-        
+
+        [Header("Wallrun")] 
+        [SerializeField] private float maximumWallAngle = 30f;
         
         [Header("Tilt")] 
         [SerializeField] private float tiltPower = 1f;
@@ -52,15 +54,13 @@ namespace Player
 
         private void Update()
         {
-            return;
-            
             float targetFov = Mathf.Lerp(minFov, maxFov, interpolationFov.Evaluate(characterController.HorizontalVelocity.magnitude / maxSpeedFov));
             cinemachine.m_Lens.FieldOfView = Mathf.Lerp(cinemachine.m_Lens.FieldOfView, targetFov, Time.deltaTime * sharpnessFov);
             
             characterForwardUpdate = characterController.transform.forward;
 
-            targetTilt = Mathf.Clamp(-characterController.Motor.Velocity.y * velocityTiltMultiplier, -tiltMax, tiltMax) * tiltPower;
-            cinemachineRecomposer.m_Tilt = Mathf.Lerp(cinemachineRecomposer.m_Tilt, targetTilt, Time.deltaTime * tiltSharpness);
+            // targetTilt = Mathf.Clamp(-characterController.Motor.Velocity.y * velocityTiltMultiplier, -tiltMax, tiltMax) * tiltPower;
+            // cinemachineRecomposer.m_Tilt = Mathf.Lerp(cinemachineRecomposer.m_Tilt, targetTilt, Time.deltaTime * tiltSharpness);
 
             switch (characterController.CharacterMovementMode)
             {
@@ -91,7 +91,15 @@ namespace Player
         {
             if (characterController.CharacterMovementMode == CharacterController.MovementMode.Wallrun)
             {
-                cinemachine.m_XAxis.Value += Vector3.SignedAngle(characterForwardUpdate, characterController.transform.forward, characterController.Motor.CharacterUp);
+                float angleDelta = Vector3.SignedAngle(characterForwardUpdate, characterController.transform.forward, characterController.Motor.CharacterUp);
+
+                float wallAngle = Vector3.Angle(characterController.WallHit.normal, characterController.transform.forward);
+
+                wallAngle = Mathf.Abs(90f - wallAngle);
+                Debug.Log(wallAngle);
+                
+                if(wallAngle < maximumWallAngle)
+                    cinemachine.m_XAxis.Value += angleDelta;
             }
         }
 

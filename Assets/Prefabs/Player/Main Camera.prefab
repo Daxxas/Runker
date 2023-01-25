@@ -803,6 +803,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  maximumWallAngle: 15
   tiltPower: 0
   tiltMax: 10
   tiltSharpness: 1
