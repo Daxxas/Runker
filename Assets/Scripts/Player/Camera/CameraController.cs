@@ -96,7 +96,6 @@ namespace Player
                 float wallAngle = Vector3.Angle(characterController.WallHit.normal, characterController.transform.forward);
 
                 wallAngle = Mathf.Abs(90f - wallAngle);
-                Debug.Log(wallAngle);
                 
                 if(wallAngle < maximumWallAngle)
                     cinemachine.m_XAxis.Value += angleDelta;

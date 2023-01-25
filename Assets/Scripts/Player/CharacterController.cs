@@ -413,7 +413,8 @@ namespace Player
             bool rightForwardWall = Physics.Raycast(toWallRightForwardRay, out RaycastHit rightForwardHit, motor.Capsule.radius + wallRunDetectionDistance);
             bool frontWall = Physics.Raycast(toWallFrontRay, out RaycastHit frontWallHit, motor.Capsule.radius + wallRunDetectionDistance);
 
-            Debug.Log(frontWall);
+            TouchingWallState previousWallState = touchingWall;
+            
             if (frontWall)
             {
                 wallHit = frontWallHit;
@@ -482,7 +483,7 @@ namespace Player
                    (jumpRequest && JumpBufferIsValid)))
             {
                 onWallRunRelease?.Invoke();
-                WallRunEnd();
+                WallRunEnd(previousWallState);
             }
 
             previousVelocity = motor.Velocity;
@@ -673,7 +674,7 @@ namespace Player
             momentum.y = Mathf.Max(momentum.y, wallRunYBoost); // Boost Y velocity at start of wallrun
         }
 
-        private void WallRunEnd()
+        private void WallRunEnd(TouchingWallState exitTouchingWallState)
         {
             aerialJumpCount = 0; // Reset aerials after wallrun
             wallJumpFrameCount = 0; // Reset walljump frame count
@@ -688,12 +689,21 @@ namespace Player
                 Vector3 jumpDirectionFromWall = (motor.CharacterUp * (1-wallJumpAngleCoef) + wallHit.normal * wallJumpAngleCoef).normalized; // Calculate walljump direction with coeffecient
                 momentum += jumpDirectionFromWall * wallJumpVelocity; // Apply walljump velocity
                 momentum += motor.CharacterForward * wallJumpForwardBoost; // Add forward boost
-
             }
             else
             {
                 wallRunCooldownTime = Time.time; // Put wallrun on cooldown
-                momentum += wallHit.normal * wallRunReleaseVelocity;
+
+                if (exitTouchingWallState != TouchingWallState.Front)
+                {
+                    momentum += wallHit.normal * wallRunReleaseVelocity;
+                }
+                else
+                {
+                    // TODO : Add a way to force unground for a small period of time on vertical wallrun exit
+                    momentum += -wallHit.normal * wallRunReleaseVelocity;
+                    // momentum.y += 10f;
+                }
             }
         }
         
