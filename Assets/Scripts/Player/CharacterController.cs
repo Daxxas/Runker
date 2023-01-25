@@ -147,7 +147,8 @@ namespace Player
         {
             None,
             Left,
-            Right
+            Right,
+            Front
         }
         
         private void Awake()
@@ -211,7 +212,7 @@ namespace Player
                 float slopeSin = Mathf.Sin(Mathf.Deg2Rad * slopeAngle);
                 
                 // Make controller slide along slope
-                Vector3 targetVelocity = mass * -gravity * slopeSin * -effectiveGroundNormal;
+                Vector3 targetVelocity = slideMass * -gravity * slopeSin * -effectiveGroundNormal;
                 
                 // Redirect target velocity along ramp instead of being perpendicular to ramp
                 targetVelocity = motor.GetDirectionTangentToSurface(targetVelocity, effectiveGroundNormal) * targetVelocity.magnitude;
@@ -272,7 +273,15 @@ namespace Player
                 momentum.y += -wallRunGravity * mass * deltaTime; // Apply gravity
                 
                 // Calculate wallrun direction
-                Vector3 wallRunDirection = motor.CharacterForward;
+                Vector3 wallRunDirection;
+                if (touchingWall == TouchingWallState.Front)
+                {
+                    wallRunDirection = motor.CharacterUp;
+                }
+                else
+                {
+                    wallRunDirection = motor.CharacterForward;
+                }
                 Vector3 targetVelocity = wallRunDirection * (wallRunSpeed * inputProvider.MoveDirection.y);
                 Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
@@ -339,7 +348,7 @@ namespace Player
 
                 currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
             }
-            else
+            else if(touchingWall != TouchingWallState.Front)
             {
                 Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
                 Vector3 wallrunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal);
@@ -386,17 +395,31 @@ namespace Player
                 direction = -motor.CharacterRight + motor.CharacterForward * 0.7f
             };
             
+            Ray toWallFrontRay = new Ray()
+            {
+                origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
+                direction = motor.CharacterForward
+            };
+            
             Debug.DrawRay(toWallRightRay.origin, toWallRightRay.direction, Color.magenta);
             Debug.DrawRay(toWallRightForwardRay.origin, toWallRightForwardRay.direction, Color.magenta);
             Debug.DrawRay(toWallLeftRay.origin, toWallLeftRay.direction, Color.magenta);
             Debug.DrawRay(toWallLeftForwardRay.origin, toWallLeftForwardRay.direction, Color.magenta);
+            Debug.DrawRay(toWallFrontRay.origin, toWallLeftForwardRay.direction, Color.green);
             
             bool leftWall = Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance);
             bool leftForwardWall = Physics.Raycast(toWallLeftForwardRay, out RaycastHit leftForwardHit, motor.Capsule.radius + wallRunDetectionDistance);
             bool rightWall = Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance);
             bool rightForwardWall = Physics.Raycast(toWallRightForwardRay, out RaycastHit rightForwardHit, motor.Capsule.radius + wallRunDetectionDistance);
-            
-            if (leftWall && Vector3.Angle(leftHit.normal, Vector3.up) >= wallRunMinAngle)
+            bool frontWall = Physics.Raycast(toWallFrontRay, out RaycastHit frontWallHit, motor.Capsule.radius + wallRunDetectionDistance);
+
+            Debug.Log(frontWall);
+            if (frontWall)
+            {
+                wallHit = frontWallHit;
+                touchingWall = TouchingWallState.Front;
+            }
+            else if (leftWall && Vector3.Angle(leftHit.normal, Vector3.up) >= wallRunMinAngle)
             {
                 wallHit = leftHit;
                 touchingWall = TouchingWallState.Left;

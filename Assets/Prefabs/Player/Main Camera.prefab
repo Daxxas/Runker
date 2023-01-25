@@ -819,7 +819,7 @@ MonoBehaviour:
     lerp: 3
     dutch: 0
   wallrunOffset:
-    position: {x: 2, y: 1, z: 4}
+    position: {x: 1, y: 1, z: 0}
     lerp: 10
     dutch: 10
 --- !u!114 &746883985650114453

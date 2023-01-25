@@ -1104,7 +1104,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8646695859555911765
 Animator:
-  serializedVersion: 5
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1121,7 +1121,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!136 &8646695859548536072
 CapsuleCollider:
   m_ObjectHideFlags: 8
@@ -1209,7 +1209,7 @@ MonoBehaviour:
   slideBoost: 10
   slideBoostMinimumHorizontalVelocity: 6
   slideGroundTimeMinimum: 1
-  slideMass: 4
+  slideMass: 10
   jumpAngle: 90
   jumpForce: 15
   jumpHoldGravityMultiplier: 4
@@ -1288,7 +1288,7 @@ MonoBehaviour:
   grappleResistance: 10
   grappleStopMomentumThreshold: 50
   grappleMinHoldPower: 1.1
-  grappleThrowSpeed: 90
+  grappleThrowSpeed: 120
 --- !u!1 &8646695859548502919
 GameObject:
   m_ObjectHideFlags: 0
