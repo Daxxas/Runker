@@ -54,6 +54,7 @@ namespace Player
         [SerializeField] private float wallRunYBoost = 2f;
         [SerializeField] private float wallRunMinimumHorizontalVelocity = 0.1f;
         [SerializeField] private float wallRunReleaseVelocity = 2f;
+        [SerializeField] private float verticalWallRunReleaseVelocity = 2f;
         [SerializeField] private float wallRunHoldDuration = 3f;
         [SerializeField] private float wallRunCooldown = 3f;
         [SerializeField] private float wallRunDrag = 0.1f;
@@ -61,6 +62,7 @@ namespace Player
         [SerializeField] private float wallRunDetectionDistance = 0.2f;
         [SerializeField] private float wallRunGripStrength = 2f;
         [SerializeField] private float wallRotationSharpness = 2f;
+        [SerializeField] private float wallRunVerticalExitUngroundForceTime = .2f;
         [Header("Walljump")]
         [SerializeField] private float wallJumpVelocity = 2f;
         [SerializeField] private float wallJumpForwardBoost = 2f;
@@ -189,7 +191,7 @@ namespace Player
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             UpdateState();
-            
+
             Vector3 effectiveGroundNormal = motor.GroundingStatus.GroundNormal;
             
             // Adjust velocity to ground normal
@@ -534,7 +536,7 @@ namespace Player
             bool footWall = Physics.Raycast(transform.position, motor.CharacterForward, out RaycastHit footHit, motor.Capsule.radius + wallRunDetectionDistance);
             bool headWall = Physics.Raycast(transform.position + Vector3.up * motor.Capsule.height, motor.CharacterForward, out RaycastHit headHit, motor.Capsule.radius + wallRunDetectionDistance);
 
-            if (footWall && !headWall)
+            if (footWall && !headWall && !motor.MustUnground())
             {
                 // Ledge grab is just momentum boost on Y ?
                 onLedgeClimb?.Invoke();
@@ -694,15 +696,16 @@ namespace Player
             {
                 wallRunCooldownTime = Time.time; // Put wallrun on cooldown
 
-                if (exitTouchingWallState != TouchingWallState.Front)
+                if (exitTouchingWallState == TouchingWallState.Front)
                 {
-                    momentum += wallHit.normal * wallRunReleaseVelocity;
+                    Debug.Log("EXIT VERTICAL WALLRUN");
+                    momentum.y = verticalWallRunReleaseVelocity;
+                    momentum += -wallHit.normal * wallRunReleaseVelocity;
+                    motor.ForceUnground(wallRunVerticalExitUngroundForceTime);
                 }
                 else
                 {
-                    // TODO : Add a way to force unground for a small period of time on vertical wallrun exit
-                    momentum += -wallHit.normal * wallRunReleaseVelocity;
-                    // momentum.y += 10f;
+                    momentum += wallHit.normal * wallRunReleaseVelocity;
                 }
             }
         }

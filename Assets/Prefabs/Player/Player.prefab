@@ -1223,6 +1223,7 @@ MonoBehaviour:
   wallRunYBoost: 11
   wallRunMinimumHorizontalVelocity: 3
   wallRunReleaseVelocity: 6
+  verticalWallRunReleaseVelocity: 30
   wallRunHoldDuration: 3
   wallRunCooldown: 0.5
   wallRunDrag: 0.3
@@ -1230,6 +1231,7 @@ MonoBehaviour:
   wallRunDetectionDistance: 0.1
   wallRunGripStrength: 10
   wallRotationSharpness: 10
+  wallRunVerticalExitUngroundForceTime: 0.2
   wallJumpVelocity: 17
   wallJumpForwardBoost: -3
   wallJumpAngle: 45
@@ -1284,7 +1286,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 55
   grappleAirControl: 0.1
-  grappleAcceleration: 20
+  grappleAcceleration: 60
   grappleResistance: 10
   grappleStopMomentumThreshold: 50
   grappleMinHoldPower: 1.1
