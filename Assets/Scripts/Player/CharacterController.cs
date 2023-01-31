@@ -284,7 +284,8 @@ namespace Player
                 {
                     wallRunDirection = motor.CharacterForward;
                 }
-                Vector3 targetVelocity = wallRunDirection * (wallRunSpeed * inputProvider.MoveDirection.y);
+
+                Vector3 targetVelocity = wallRunDirection * wallRunSpeed;// * (wallRunSpeed * inputProvider.MoveDirection.y);
                 Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
                 currentVelocity += momentum;
@@ -358,6 +359,11 @@ namespace Player
                 
                 Quaternion targetRotation = Quaternion.LookRotation(wallrunDirection.normalized, motor.CharacterUp);
                 currentRotation = Quaternion.Lerp(currentRotation, targetRotation, 1f - Mathf.Exp(-wallRotationSharpness * deltaTime));
+            }
+            else if(touchingWall == TouchingWallState.Front) 
+            {
+                // force character orientation to be perpendicular to wall
+                currentRotation = Quaternion.LookRotation(-wallHit.normal, motor.CharacterUp);
             }
         }
 
@@ -698,10 +704,21 @@ namespace Player
 
                 if (exitTouchingWallState == TouchingWallState.Front)
                 {
-                    Debug.Log("EXIT VERTICAL WALLRUN");
-                    momentum.y = verticalWallRunReleaseVelocity;
-                    momentum += -wallHit.normal * wallRunReleaseVelocity;
-                    motor.ForceUnground(wallRunVerticalExitUngroundForceTime);
+                    // If release while we were touching the front of the wall, we want to jump off the wall
+                    if (touchingWall == TouchingWallState.Front)
+                    {
+                        Debug.Log("STILL TOUCHING FRONT");
+                        momentum += wallHit.normal * wallRunReleaseVelocity;
+                    }
+                    // release when vertical reach the "end" of wall
+                    else
+                    {
+                        Debug.Log("NOT TOUCHING FRONT");
+                        momentum.y = verticalWallRunReleaseVelocity;
+                        momentum += -wallHit.normal * wallRunReleaseVelocity;
+                        motor.ForceUnground(wallRunVerticalExitUngroundForceTime);
+                    }
+                    
                 }
                 else
                 {

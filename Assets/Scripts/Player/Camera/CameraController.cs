@@ -38,6 +38,7 @@ namespace Player
         [SerializeField] private CameraOffset slideOffset;
         [SerializeField] private CameraOffset runOffset;
         [SerializeField] private CameraOffset wallrunOffset;
+        [SerializeField] private CameraOffset verticalWallrunOffset;
         
         private CameraOffset targetOffset;
 
@@ -68,8 +69,8 @@ namespace Player
                     targetOffset = slideOffset;
                     break;
                 case CharacterController.MovementMode.Wallrun:
-                    targetOffset = wallrunOffset;
-                    Vector3 cameraForward = cinemachine.VirtualCameraGameObject.transform.forward;
+                    targetOffset = characterController.TouchingWall == CharacterController.TouchingWallState.Front ? verticalWallrunOffset : wallrunOffset;
+
                     if (characterController.TouchingWall == CharacterController.TouchingWallState.Right)
                     {
                         targetOffset.position.x = -targetOffset.position.x;
