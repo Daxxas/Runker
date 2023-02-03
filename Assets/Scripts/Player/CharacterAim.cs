@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class CharacterAim : MonoBehaviour
 {
+    [SerializeField] private Transform handIk;
     [SerializeField] private Animator animator;
     [SerializeField] private Camera camera;
     
