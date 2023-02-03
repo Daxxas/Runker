@@ -1420,6 +1420,7 @@ GameObject:
   - component: {fileID: 717158035082636393}
   - component: {fileID: 772771443}
   - component: {fileID: 772771444}
+  - component: {fileID: 772771440}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -1648,12 +1649,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6affc7a319e4af43a2ec7c18617e22b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rig: {fileID: 1135934612}
+  characterShooter: {fileID: 772771440}
+  animator: {fileID: 8646695859555911765}
   aimTargetIK: {fileID: 0}
   targetOffset: {x: 0, y: 1.5, z: 0}
   rayStartPositionOffset: {x: 0, y: 2, z: 0}
   camera: {fileID: 0}
   aimTargetMaxDistance: 10
   aimSharpness: 15
+  ikTransitionSharpness: 15
   aimable:
     serializedVersion: 2
     m_Bits: 55
@@ -1752,6 +1757,19 @@ MonoBehaviour:
   - m_Rig: {fileID: 1135934612}
     m_Active: 1
   m_Effectors: []
+--- !u!114 &772771440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8646695859548502917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83e63b778798419a82b046ce64222d26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputProvider: {fileID: 8085930218653974341}
 --- !u!1 &8646695859548502919
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,15 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Player;
 using Player.Inputs;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
-public class CharacterAim : MonoBehaviour
+public class CharacterAimIK : MonoBehaviour
 {
     [Header("References")] 
     [SerializeField] private Rig rig;
-    [SerializeField] private InputProvider inputProvider;
+    [SerializeField] private CharacterShooter characterShooter;
     [SerializeField] private Animator animator;
     
     [SerializeField] private Transform aimTargetIK;
@@ -26,7 +27,7 @@ public class CharacterAim : MonoBehaviour
     
     private void Start()
     {
-        inputProvider.onAim += SetEnableAimIK;
+        characterShooter.onAim += SetEnableAimIK;
     }
 
     private void SetEnableAimIK(bool enable)

@@ -772,6 +772,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterController: {fileID: 0}
+  characterShooter: {fileID: 0}
   cinemachine: {fileID: 746883985650114448}
   cinemachineCameraOffset: {fileID: 746883985650114443}
   cinemachineRecomposer: {fileID: 746883985650114453}
@@ -822,6 +823,14 @@ MonoBehaviour:
     position: {x: 1, y: 1, z: 0}
     lerp: 10
     dutch: 10
+  verticalWallrunOffset:
+    position: {x: 0, y: 0, z: 0}
+    lerp: 0
+    dutch: 0
+  aimOffset:
+    position: {x: -0.5, y: 0, z: 7}
+    lerp: 0
+    dutch: 0
 --- !u!114 &746883985650114453
 MonoBehaviour:
   m_ObjectHideFlags: 0

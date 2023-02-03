@@ -10,6 +10,7 @@ namespace Player
     {
         [Header("References")]
         [SerializeField] private CharacterController characterController;
+        [SerializeField] private CharacterShooter characterShooter;
         [SerializeField] private CinemachineFreeLook cinemachine;
         [SerializeField] private CinemachineCameraOffset cinemachineCameraOffset;
         [SerializeField] private CinemachineRecomposer cinemachineRecomposer;
@@ -39,6 +40,7 @@ namespace Player
         [SerializeField] private CameraOffset runOffset;
         [SerializeField] private CameraOffset wallrunOffset;
         [SerializeField] private CameraOffset verticalWallrunOffset;
+        [SerializeField] private CameraOffset aimOffset;
         
         private CameraOffset targetOffset;
 
@@ -63,27 +65,36 @@ namespace Player
             // targetTilt = Mathf.Clamp(-characterController.Motor.Velocity.y * velocityTiltMultiplier, -tiltMax, tiltMax) * tiltPower;
             // cinemachineRecomposer.m_Tilt = Mathf.Lerp(cinemachineRecomposer.m_Tilt, targetTilt, Time.deltaTime * tiltSharpness);
 
-            switch (characterController.CharacterMovementMode)
+            if (characterShooter.IsAiming)
             {
-                case CharacterController.MovementMode.Slide:
-                    targetOffset = slideOffset;
-                    break;
-                case CharacterController.MovementMode.Wallrun:
-                    targetOffset = characterController.TouchingWall == CharacterController.TouchingWallState.Front ? verticalWallrunOffset : wallrunOffset;
-
-                    if (characterController.TouchingWall == CharacterController.TouchingWallState.Right)
-                    {
-                        targetOffset.position.x = -targetOffset.position.x;
-                    }
-                    else
-                    {
-                        targetOffset.dutch = -targetOffset.dutch;
-                    }
-                    break;
-                default:
-                    targetOffset = runOffset;
-                    break;
+                targetOffset = aimOffset;
             }
+            else
+            {
+                switch (characterController.CharacterMovementMode)
+                {
+                    case CharacterController.MovementMode.Slide:
+                        targetOffset = slideOffset;
+                        break;
+                    case CharacterController.MovementMode.Wallrun:
+                        targetOffset = characterController.TouchingWall == CharacterController.TouchingWallState.Front ? verticalWallrunOffset : wallrunOffset;
+
+                        if (characterController.TouchingWall == CharacterController.TouchingWallState.Right)
+                        {
+                            targetOffset.position.x = -targetOffset.position.x;
+                        }
+                        else
+                        {
+                            targetOffset.dutch = -targetOffset.dutch;
+                        }
+                        break;
+                    default:
+                        targetOffset = runOffset;
+                        break;
+                }
+            }
+            
+            
             
             UpdateCameraOffset();
         }
