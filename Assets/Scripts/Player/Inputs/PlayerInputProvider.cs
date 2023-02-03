@@ -53,6 +53,9 @@ namespace Player.Inputs
                 
                 onEscape?.Invoke(roundedMoveDirection);
             };
+            
+            mainInputs.Main.Aim.performed += context => onAim?.Invoke(context.ReadValue<float>() != 0f);
+            mainInputs.Main.Aim.canceled += context => onAim?.Invoke(context.ReadValue<float>() != 0f);
         }
 
         private void EscapePress(Vector2 direction)

@@ -107,6 +107,15 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Aim"",
+                    ""type"": ""Button"",
+                    ""id"": ""3d9b1595-ff36-45cf-befe-e204d86fc02d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -340,6 +349,17 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""action"": ""Grapple"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5b92e223-d137-42ae-8aa8-6b88ae21557d"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Aim"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -357,6 +377,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         m_Main_EscapeX = m_Main.FindAction("EscapeX", throwIfNotFound: true);
         m_Main_ControllerEscapePerform = m_Main.FindAction("ControllerEscapePerform", throwIfNotFound: true);
         m_Main_Grapple = m_Main.FindAction("Grapple", throwIfNotFound: true);
+        m_Main_Aim = m_Main.FindAction("Aim", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -425,6 +446,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
     private readonly InputAction m_Main_EscapeX;
     private readonly InputAction m_Main_ControllerEscapePerform;
     private readonly InputAction m_Main_Grapple;
+    private readonly InputAction m_Main_Aim;
     public struct MainActions
     {
         private @MainInputs m_Wrapper;
@@ -438,6 +460,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         public InputAction @EscapeX => m_Wrapper.m_Main_EscapeX;
         public InputAction @ControllerEscapePerform => m_Wrapper.m_Main_ControllerEscapePerform;
         public InputAction @Grapple => m_Wrapper.m_Main_Grapple;
+        public InputAction @Aim => m_Wrapper.m_Main_Aim;
         public InputActionMap Get() { return m_Wrapper.m_Main; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -474,6 +497,9 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @Grapple.started -= m_Wrapper.m_MainActionsCallbackInterface.OnGrapple;
                 @Grapple.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnGrapple;
                 @Grapple.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnGrapple;
+                @Aim.started -= m_Wrapper.m_MainActionsCallbackInterface.OnAim;
+                @Aim.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnAim;
+                @Aim.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnAim;
             }
             m_Wrapper.m_MainActionsCallbackInterface = instance;
             if (instance != null)
@@ -505,6 +531,9 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @Grapple.started += instance.OnGrapple;
                 @Grapple.performed += instance.OnGrapple;
                 @Grapple.canceled += instance.OnGrapple;
+                @Aim.started += instance.OnAim;
+                @Aim.performed += instance.OnAim;
+                @Aim.canceled += instance.OnAim;
             }
         }
     }
@@ -520,5 +549,6 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         void OnEscapeX(InputAction.CallbackContext context);
         void OnControllerEscapePerform(InputAction.CallbackContext context);
         void OnGrapple(InputAction.CallbackContext context);
+        void OnAim(InputAction.CallbackContext context);
     }
 }
