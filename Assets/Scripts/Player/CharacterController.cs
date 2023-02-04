@@ -99,6 +99,8 @@ namespace Player
         public Vector2 HorizontalVelocity => new Vector2(motor.Velocity.x, motor.Velocity.z);
         private Vector3 momentum = Vector3.zero;
 
+        public Vector3 Momentum => momentum;
+
         private float groundTime = 0f;
         private bool isRunning = false;
 
@@ -133,6 +135,8 @@ namespace Player
         private bool shouldWallRun = false;
         public bool ShouldWallRun => shouldWallRun;
 
+        private TouchingWallState lastWallState;
+        
         private MovementMode characterMovementMode = MovementMode.Airborn;
         public MovementMode CharacterMovementMode => characterMovementMode;
 
@@ -328,7 +332,12 @@ namespace Player
                 momentum = motor.GetDirectionTangentToSurface(momentum, effectiveGroundNormal) * momentum.magnitude;
                 momentum += jumpDirectionFromGround.normalized * jumpForce;
                 motor.ForceUnground();
-                currentVelocity = momentum; 
+                
+                if(motor.GroundingStatus.IsStableOnGround && motor.GroundingStatus.GroundCollider.TryGetComponent(out PhysicsMover mover))
+                {
+                    momentum += mover.Velocity;
+                }
+                currentVelocity = momentum;
             }
         }
 
@@ -421,7 +430,10 @@ namespace Player
             bool rightForwardWall = Physics.Raycast(toWallRightForwardRay, out RaycastHit rightForwardHit, motor.Capsule.radius + wallRunDetectionDistance);
             bool frontWall = Physics.Raycast(toWallFrontRay, out RaycastHit frontWallHit, motor.Capsule.radius + wallRunDetectionDistance);
 
-            TouchingWallState previousWallState = touchingWall;
+            if (touchingWall != TouchingWallState.None)
+            {
+                lastWallState = touchingWall;
+            }
             
             if (frontWall)
             {
@@ -491,7 +503,7 @@ namespace Player
                    (jumpRequest && JumpBufferIsValid)))
             {
                 onWallRunRelease?.Invoke();
-                WallRunEnd(previousWallState);
+                WallRunEnd(lastWallState);
             }
 
             previousVelocity = motor.Velocity;

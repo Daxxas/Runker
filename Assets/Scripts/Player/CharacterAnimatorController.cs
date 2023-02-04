@@ -39,9 +39,9 @@ namespace Player
 
         private void Update()
         {
-            animator.SetFloat("speedMagnitude", characterMotor.Velocity.magnitude);
-            animator.SetFloat("velocityVertical", characterMotor.Velocity.y);
-            animator.SetFloat("velocityHorizontal", new Vector2(characterMotor.Velocity.x, characterMotor.Velocity.z).magnitude);
+            animator.SetFloat("speedMagnitude", characterController.Momentum.magnitude);
+            animator.SetFloat("velocityVertical", characterController.Momentum.y);
+            animator.SetFloat("velocityHorizontal", new Vector2(characterController.Momentum.x, characterController.Momentum.z).magnitude);
             animator.SetBool("isGrounded", characterMotor.GroundingStatus.IsStableOnGround);
             animator.SetBool("isWallRunning", characterController.ShouldWallRun);
             animator.SetBool("isWallRight", characterController.TouchingWall == CharacterController.TouchingWallState.Right);
