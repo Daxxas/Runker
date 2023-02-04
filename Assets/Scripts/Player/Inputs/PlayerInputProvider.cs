@@ -57,6 +57,9 @@ namespace Player.Inputs
             
             mainInputs.Main.Aim.performed += context => onAim?.Invoke(context.ReadValue<float>() != 0f);
             mainInputs.Main.Aim.canceled += context => onAim?.Invoke(context.ReadValue<float>() != 0f);
+            
+            mainInputs.Main.Shoot.performed += context => onShoot?.Invoke(context.ReadValue<float>() != 0f);
+            mainInputs.Main.Shoot.canceled += context => onShoot?.Invoke(context.ReadValue<float>() != 0f);
         }
 
         private void EscapePress(Vector2 direction)

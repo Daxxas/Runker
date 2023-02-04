@@ -10,6 +10,7 @@ namespace Player.Inputs
         public Action<bool> onRun;
         public Action<bool> onJump;
         public Action<bool> onAim;
+        public Action<bool> onShoot;
         public Action<bool> onGrapple;
         public Action<float> onScroll;
         public Action<Vector2> onEscape;

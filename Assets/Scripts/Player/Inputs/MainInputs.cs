@@ -116,6 +116,15 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Shoot"",
+                    ""type"": ""Button"",
+                    ""id"": ""8655e181-7ded-41b0-a4df-f5503937d0e3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -375,11 +384,33 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""c6db0c1a-78d3-4129-8e67-056346adce9e"",
-                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Aim"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a4d284ca-7d3c-438a-89e9-e93105bb305a"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""Shoot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""40fe8249-14d5-42d7-b630-92b499465d23"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Shoot"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -423,6 +454,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         m_Main_ControllerEscapePerform = m_Main.FindAction("ControllerEscapePerform", throwIfNotFound: true);
         m_Main_Grapple = m_Main.FindAction("Grapple", throwIfNotFound: true);
         m_Main_Aim = m_Main.FindAction("Aim", throwIfNotFound: true);
+        m_Main_Shoot = m_Main.FindAction("Shoot", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -492,6 +524,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
     private readonly InputAction m_Main_ControllerEscapePerform;
     private readonly InputAction m_Main_Grapple;
     private readonly InputAction m_Main_Aim;
+    private readonly InputAction m_Main_Shoot;
     public struct MainActions
     {
         private @MainInputs m_Wrapper;
@@ -506,6 +539,7 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         public InputAction @ControllerEscapePerform => m_Wrapper.m_Main_ControllerEscapePerform;
         public InputAction @Grapple => m_Wrapper.m_Main_Grapple;
         public InputAction @Aim => m_Wrapper.m_Main_Aim;
+        public InputAction @Shoot => m_Wrapper.m_Main_Shoot;
         public InputActionMap Get() { return m_Wrapper.m_Main; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -545,6 +579,9 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @Aim.started -= m_Wrapper.m_MainActionsCallbackInterface.OnAim;
                 @Aim.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnAim;
                 @Aim.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnAim;
+                @Shoot.started -= m_Wrapper.m_MainActionsCallbackInterface.OnShoot;
+                @Shoot.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnShoot;
+                @Shoot.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnShoot;
             }
             m_Wrapper.m_MainActionsCallbackInterface = instance;
             if (instance != null)
@@ -579,6 +616,9 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
                 @Aim.started += instance.OnAim;
                 @Aim.performed += instance.OnAim;
                 @Aim.canceled += instance.OnAim;
+                @Shoot.started += instance.OnShoot;
+                @Shoot.performed += instance.OnShoot;
+                @Shoot.canceled += instance.OnShoot;
             }
         }
     }
@@ -613,5 +653,6 @@ public partial class @MainInputs : IInputActionCollection2, IDisposable
         void OnControllerEscapePerform(InputAction.CallbackContext context);
         void OnGrapple(InputAction.CallbackContext context);
         void OnAim(InputAction.CallbackContext context);
+        void OnShoot(InputAction.CallbackContext context);
     }
 }
