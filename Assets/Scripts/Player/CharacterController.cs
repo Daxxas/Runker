@@ -136,6 +136,7 @@ namespace Player
         public bool ShouldWallRun => shouldWallRun;
 
         private TouchingWallState lastWallState;
+        private Collider lastWallCollider;
         
         private MovementMode characterMovementMode = MovementMode.Airborn;
         public MovementMode CharacterMovementMode => characterMovementMode;
@@ -293,6 +294,12 @@ namespace Player
                 Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
                 currentVelocity += momentum;
+
+                if (lastWallCollider != null && wallHit.collider.TryGetComponent(out PhysicsMover mover))
+                {
+                    currentVelocity += mover.Velocity;
+                }
+                
                 if (!wallJumpPreventingWallRun)
                 {
                     currentVelocity += wallRunGripStrength * -wallHit.normal; // Apply grip velocity to stick on wall
@@ -305,7 +312,6 @@ namespace Player
                 
                 Vector3 grappleAirControlAcceleration = correctedInput * grappleController.GrappleAirControl;
                 momentum += grappleAirControlAcceleration;
-
                 
                 currentVelocity = momentum;
             }
@@ -464,6 +470,8 @@ namespace Player
             {
                 touchingWall = TouchingWallState.None;
             }
+            
+            lastWallCollider = wallHit.collider;
 
             // Edge case if try to wallrun on a corner
             if (leftForwardWall && rightForwardWall)
