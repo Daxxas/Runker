@@ -106,7 +106,7 @@ namespace Player.Grapple
                 
                 if(grappleHitCollider.TryGetComponent(out GrapplePull pull))
                 {
-                    pull.Pull((grapplePoint - grappleOrigin.position).normalized, -grappleThrowSpeed);
+                    pull.Pull((grapplePoint - grappleOrigin.position).normalized, -grappleAcceleration);
                 }
                 
                 if (Physics.Raycast(grappleOrigin.position, grapplePoint - grappleOrigin.position, out var deltaHit, currentThrowDistance, grappleMask))
