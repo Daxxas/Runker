@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Player.Inputs
 {
@@ -71,6 +72,7 @@ namespace Player.Inputs
         
         private void Update()
         {
+        
             moveDirection = mainInputs.Main.Move.ReadValue<Vector2>();
             moveDirectionV3 = new Vector3(moveDirection.x, 0, moveDirection.y);
         }
