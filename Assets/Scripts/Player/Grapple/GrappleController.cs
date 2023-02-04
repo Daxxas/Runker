@@ -31,6 +31,9 @@ namespace Player.Grapple
         
         private InputProvider inputProvider;
 
+        private Collider grappleHitCollider;
+        private Vector3 lastGrappleHitColliderPosition;
+        
         private bool grappleHit = false;
         public bool GrappleHit
         {
@@ -92,15 +95,21 @@ namespace Player.Grapple
                     onGrapple?.Invoke();
                     grappleHit = true;
                     grapplePoint = hit.point;
+                    lastGrappleHitColliderPosition = hit.transform.position;
+                    grappleHitCollider = hit.collider;
                 }
             }
             else if (currentGrappleState == GrappleState.Lock)
             {
+                grapplePoint += grappleHitCollider.transform.position - lastGrappleHitColliderPosition;
+                
                 if (Physics.Raycast(grappleOrigin.position, grapplePoint - grappleOrigin.position, out var deltaHit, currentThrowDistance, grappleMask))
                 {
                     if((deltaHit.point - grapplePoint).magnitude > grappleForceReleaseMaxDistance)
                         ReleaseGrapple();
                 }
+                
+                lastGrappleHitColliderPosition = grappleHitCollider.transform.position;
             }
         }
         
