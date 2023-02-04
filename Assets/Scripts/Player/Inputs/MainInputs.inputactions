@@ -177,7 +177,7 @@
                 {
                     "name": "",
                     "id": "90798ca2-b380-428d-ace2-c0f3517a213c",
-                    "path": "<Gamepad>/rightShoulder",
+                    "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -309,7 +309,7 @@
                 {
                     "name": "",
                     "id": "c3d2f958-09a3-4037-90ea-750a16f2f3de",
-                    "path": "<Gamepad>/buttonWest",
+                    "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -330,8 +330,30 @@
                 },
                 {
                     "name": "",
+                    "id": "e29a317c-0763-4718-bf92-b7e735374630",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grapple",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "5b92e223-d137-42ae-8aa8-6b88ae21557d",
                     "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Aim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c6db0c1a-78d3-4129-8e67-056346adce9e",
+                    "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

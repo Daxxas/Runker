@@ -828,8 +828,8 @@ MonoBehaviour:
     lerp: 0
     dutch: 0
   aimOffset:
-    position: {x: -0.5, y: 0, z: 7}
-    lerp: 0
+    position: {x: -0.2, y: 0, z: 7}
+    lerp: 15
     dutch: 0
 --- !u!114 &746883985650114453
 MonoBehaviour:
