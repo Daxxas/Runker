@@ -1,4 +1,5 @@
 ﻿using System;
+using Enemies;
 using Player.Inputs;
 using UnityEngine;
 
@@ -102,6 +103,11 @@ namespace Player.Grapple
             else if (currentGrappleState == GrappleState.Lock)
             {
                 grapplePoint += grappleHitCollider.transform.position - lastGrappleHitColliderPosition;
+                
+                if(grappleHitCollider.TryGetComponent(out GrapplePull pull))
+                {
+                    pull.Pull((grapplePoint - grappleOrigin.position).normalized, -grappleThrowSpeed);
+                }
                 
                 if (Physics.Raycast(grappleOrigin.position, grapplePoint - grappleOrigin.position, out var deltaHit, currentThrowDistance, grappleMask))
                 {
