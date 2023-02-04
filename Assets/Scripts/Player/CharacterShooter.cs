@@ -11,6 +11,7 @@ namespace Player
         private bool isAiming = false;
         public bool IsAiming => isAiming;
         public Action<bool> onAim;
+        public Action<bool> onShoot;
 
         
         private void Start()
@@ -20,6 +21,11 @@ namespace Player
                 onAim?.Invoke(isAiming);
                 this.isAiming = isAiming;
             };
+        }
+
+        private void Shoot()
+        {
+            
         }
     }
 }
