@@ -130,7 +130,7 @@ namespace Player
         private float wallRunStartTime = 0f;
         private float wallRunCooldownTime = 0f;
         private bool hasTouchedGroundSinceWallrun = false;
-        public Action onWallRunTouch;
+        public Action<Vector3> onWallRunStart;
         public Action onWallRunRelease;
         private bool shouldWallRun = false;
         public bool ShouldWallRun => shouldWallRun;
@@ -492,7 +492,7 @@ namespace Player
                 // if wall run just started
                 if(previousTouchWall != touchingWall || characterMovementMode == MovementMode.Airborn)
                 {
-                    onWallRunTouch?.Invoke();
+                    onWallRunStart?.Invoke(wallHit.normal);
                     WallRunStart();
                 }
             }

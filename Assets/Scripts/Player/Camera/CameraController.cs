@@ -48,10 +48,13 @@ namespace Player
         
         private void Start()
         {
-            // characterController.onLand += () =>
-            // {
-            //     landImpulse.Impulse();
-            // };
+            characterController.onWallRunStart += wallNormal =>
+            {
+                if (characterController.TouchingWall == CharacterController.TouchingWallState.Front)
+                {
+                    PlaceCameraUnderWall(wallNormal);
+                } 
+            };
         }
         Vector3 characterForwardUpdate;
 
@@ -118,6 +121,15 @@ namespace Player
         {
             cinemachineCameraOffset.m_Offset = Vector3.Lerp(cinemachineCameraOffset.m_Offset, targetOffset.position, targetOffset.lerp * Time.deltaTime);
             cinemachineRecomposer.m_Dutch = Mathf.Lerp(cinemachineRecomposer.m_Dutch, targetOffset.dutch, targetOffset.lerp * Time.deltaTime);
+        }
+
+        private void PlaceCameraUnderWall(Vector3 wallNormal)
+        {
+            // TODO : Make this work
+            // Vector3 wallUp = Vector3.Cross(characterController.transform.forward, wallNormal);
+            
+            // cinemachine.m_XAxis.Value = Vector3.SignedAngle(wallNormal, cinemachine.transform.forward, characterController.transform.forward);
+            // cinemachine.m_YAxis.Value = 0f; // Vector3.SignedAngle(wallUp, wallNormal, Vector3.up);
         }
     }
 }
