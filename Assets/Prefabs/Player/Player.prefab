@@ -1550,7 +1550,7 @@ MonoBehaviour:
   orientationSharpness: 10
   walkSharpness: 100
   groundedRunSpeed: 17
-  runSharpness: 3
+  runSharpness: 10
   slideSharpness: 0.5
   slideBoost: 10
   slideBoostMinimumHorizontalVelocity: 6
