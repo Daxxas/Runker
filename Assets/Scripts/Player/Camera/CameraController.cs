@@ -24,6 +24,9 @@ namespace Player
 
         [Header("Wallrun")] 
         [SerializeField] private float maximumWallAngle = 30f;
+        [SerializeField] private float wallDetectionDistance = 2f;
+        [SerializeField] private LayerMask wallMask;
+        [SerializeField] private float wallAdjustmentLerp = 5f;
         
         [Header("Tilt")] 
         [SerializeField] private float tiltPower = 1f;
@@ -43,11 +46,20 @@ namespace Player
         [SerializeField] private CameraOffset aimOffset;
         
         private CameraOffset targetOffset;
-
         private float targetTilt = 0;
+        
+        private CinemachineComposer[] composer = new CinemachineComposer[3];
+        private float[] initialScreenX = new float[3];
+        private float targetScreenX = 0f;
         
         private void Start()
         {
+            for (int i = 0; i < 3; i++)
+            {
+                composer[i] = cinemachine.GetRig(i).GetCinemachineComponent<CinemachineComposer>();
+                initialScreenX[i] = composer[i].m_ScreenX;
+            }
+
             characterController.onWallRunStart += wallNormal =>
             {
                 if (characterController.TouchingWall == CharacterController.TouchingWallState.Front)
@@ -74,31 +86,57 @@ namespace Player
             }
             else
             {
-                switch (characterController.CharacterMovementMode)
+                if (characterController.CharacterMovementMode == CharacterController.MovementMode.Slide)
                 {
-                    case CharacterController.MovementMode.Slide:
-                        targetOffset = slideOffset;
-                        break;
-                    case CharacterController.MovementMode.Wallrun:
-                        targetOffset = characterController.TouchingWall == CharacterController.TouchingWallState.Front ? verticalWallrunOffset : wallrunOffset;
+                    targetOffset = slideOffset;
+                }
+                else if (characterController.CharacterMovementMode is CharacterController.MovementMode.Wallrun or CharacterController.MovementMode.Airborn)
+                {
+                    RaycastHit rightHit;
+                    RaycastHit leftHit;
+                    float dutchAmount = 0f;
 
-                        if (characterController.TouchingWall == CharacterController.TouchingWallState.Right)
-                        {
-                            targetOffset.position.x = -targetOffset.position.x;
-                        }
-                        else
-                        {
-                            targetOffset.dutch = -targetOffset.dutch;
-                        }
-                        break;
-                    default:
-                        targetOffset = runOffset;
-                        break;
+                    targetOffset.position = runOffset.position;
+                    targetOffset.dutch = wallrunOffset.dutch;
+                    targetOffset.lerp = wallrunOffset.lerp;
+                    
+                    if (characterController.CharacterMovementMode == CharacterController.MovementMode.Wallrun)
+                    {
+                        targetOffset.position = wallrunOffset.position;
+                    }
+                    
+                    if (Physics.Raycast(characterController.transform.position, characterController.transform.right, out rightHit,
+                            wallDetectionDistance, wallMask))
+                    {
+                        dutchAmount = (1f - (rightHit.distance / wallDetectionDistance)) * targetOffset.dutch;
+                    }
+                    else if (Physics.Raycast(characterController.transform.position, -characterController.transform.right, out leftHit,
+                        wallDetectionDistance, wallMask))
+                    {
+                        dutchAmount = (1f - (leftHit.distance / wallDetectionDistance)) * targetOffset.dutch; 
+                        dutchAmount = -dutchAmount;
+                    }
+                    
+                    targetOffset.dutch = dutchAmount;
+
+                    if (characterController.TouchingWall is CharacterController.TouchingWallState.Right)
+                    {
+                        targetOffset.position.x = -targetOffset.position.x;
+                    }
+                    else if (characterController.TouchingWall is CharacterController.TouchingWallState.Front)
+                    {
+                        // Override offset in case of front wallrun
+                        targetOffset = verticalWallrunOffset;
+                    }
+                }
+                else
+                {
+                    targetOffset = runOffset;
                 }
             }
             
             
-            
+
             UpdateCameraOffset();
         }
 
@@ -119,6 +157,28 @@ namespace Player
 
         private void UpdateCameraOffset()
         {
+            Vector3 leftRayOrigin = characterController.transform.position + characterController.Motor.Capsule.center + (characterController.transform.right * characterController.Motor.Capsule.radius);
+            Physics.Raycast(leftRayOrigin, characterController.transform.right, out var hit, wallDetectionDistance, wallMask);
+
+            float hitRatio = 0f;
+            if (hit.collider != null)
+            {
+                hitRatio += 1f - hit.distance / wallDetectionDistance;
+            }
+
+            Debug.Log(hitRatio);
+
+            for (int i = 0; i < composer.Length; i++)
+            {
+                // Find target camera pos
+                float mirrorScreenX = .5f - (initialScreenX[i] - .5f);
+                targetScreenX = Mathf.Lerp(initialScreenX[i], mirrorScreenX, hitRatio);
+                
+                // Lerp to target pos to avoid sudden camera jumps
+                composer[i].m_ScreenX = Mathf.Lerp(composer[i].m_ScreenX, targetScreenX, Time.deltaTime * wallAdjustmentLerp);
+            }
+            
+            
             cinemachineCameraOffset.m_Offset = Vector3.Lerp(cinemachineCameraOffset.m_Offset, targetOffset.position, targetOffset.lerp * Time.deltaTime);
             cinemachineRecomposer.m_Dutch = Mathf.Lerp(cinemachineRecomposer.m_Dutch, targetOffset.dutch, targetOffset.lerp * Time.deltaTime);
         }
