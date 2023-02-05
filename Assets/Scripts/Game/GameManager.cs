@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         if (Input.GetKeyDown(KeyCode.T))
         {
             SceneManager.LoadScene(0);

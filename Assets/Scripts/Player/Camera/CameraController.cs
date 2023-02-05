@@ -165,9 +165,7 @@ namespace Player
             {
                 hitRatio += 1f - hit.distance / wallDetectionDistance;
             }
-
-            Debug.Log(hitRatio);
-
+            
             for (int i = 0; i < composer.Length; i++)
             {
                 // Find target camera pos
