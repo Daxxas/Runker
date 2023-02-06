@@ -49,6 +49,7 @@ namespace Player
         [SerializeField] [Range(0f, 1f)] private float aerialJumpDirectionInfluence = 1f;
         [SerializeField] private float jumpBufferDuration = .2f;
         [Header("Wallrun")]
+        [SerializeField] private LayerMask wallRunSurfaceMask;
         [SerializeField] private float wallRunGravity = 9.81f;
         [SerializeField] private float wallRunSpeed = 7f;
         [SerializeField] private float wallRunYBoost = 2f;
@@ -430,11 +431,11 @@ namespace Player
             Debug.DrawRay(toWallLeftForwardRay.origin, toWallLeftForwardRay.direction, Color.magenta);
             Debug.DrawRay(toWallFrontRay.origin, toWallLeftForwardRay.direction, Color.green);
             
-            bool leftWall = Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance);
-            bool leftForwardWall = Physics.Raycast(toWallLeftForwardRay, out RaycastHit leftForwardHit, motor.Capsule.radius + wallRunDetectionDistance);
-            bool rightWall = Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance);
-            bool rightForwardWall = Physics.Raycast(toWallRightForwardRay, out RaycastHit rightForwardHit, motor.Capsule.radius + wallRunDetectionDistance);
-            bool frontWall = Physics.Raycast(toWallFrontRay, out RaycastHit frontWallHit, motor.Capsule.radius + wallRunDetectionDistance);
+            bool leftWall = Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
+            bool leftForwardWall = Physics.Raycast(toWallLeftForwardRay, out RaycastHit leftForwardHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
+            bool rightWall = Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
+            bool rightForwardWall = Physics.Raycast(toWallRightForwardRay, out RaycastHit rightForwardHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
+            bool frontWall = Physics.Raycast(toWallFrontRay, out RaycastHit frontWallHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
 
             if (touchingWall != TouchingWallState.None)
             {
@@ -544,9 +545,15 @@ namespace Player
         public void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
             ref HitStabilityReport hitStabilityReport)
         {
-            // Register wall hit for wall run
+            // Register wall hit only
             if (Motor.GroundingStatus.IsStableOnGround || hitStabilityReport.IsStable) return;
 
+            // Redirect momentum when hitting a wall we can't wall run on
+            if ((wallRunSurfaceMask & (1 << hitCollider.gameObject.layer)) == 0)
+            {
+                momentum = Vector3.ProjectOnPlane(momentum, hitNormal);
+            }
+            
             float angle = Vector3.Angle(motor.CharacterUp, hitNormal);
                 
             if (angle <= 90f && angle > motor.MaxStableSlopeAngle)
