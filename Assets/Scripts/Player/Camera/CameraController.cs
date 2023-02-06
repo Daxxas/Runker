@@ -35,8 +35,8 @@ namespace Player
         [SerializeField] private float velocityTiltMultiplier = 0.5f;
         
         [Header("Impulses")] 
-        [SerializeField] private CameraTiltImpulse landImpulse;
-        [SerializeField] private float landImpulseAmplitude = 1f;
+        // [SerializeField] private CameraTiltImpulse landImpulse;
+        // [SerializeField] private float landImpulseAmplitude = 1f;
         
         [Header("Offsets")]
         [SerializeField] private CameraOffset slideOffset;
@@ -46,8 +46,12 @@ namespace Player
         [SerializeField] private CameraOffset aimOffset;
         
         private CameraOffset targetOffset;
-        private float targetTilt = 0;
+
+        private float shakeTilt = 0f;
+        private float shakePan = 0f;
+        private float shakeDutch = 0f;
         
+        // Screen X
         private CinemachineComposer[] composer = new CinemachineComposer[3];
         private float[] initialScreenX = new float[3];
         private float targetScreenX = 0f;
@@ -76,10 +80,7 @@ namespace Player
             cinemachine.m_Lens.FieldOfView = Mathf.Lerp(cinemachine.m_Lens.FieldOfView, targetFov, Time.deltaTime * sharpnessFov);
             
             characterForwardUpdate = characterController.transform.forward;
-
-            // targetTilt = Mathf.Clamp(-characterController.Motor.Velocity.y * velocityTiltMultiplier, -tiltMax, tiltMax) * tiltPower;
-            // cinemachineRecomposer.m_Tilt = Mathf.Lerp(cinemachineRecomposer.m_Tilt, targetTilt, Time.deltaTime * tiltSharpness);
-
+            
             if (characterShooter.IsAiming)
             {
                 targetOffset = aimOffset;
@@ -179,8 +180,18 @@ namespace Player
             
             cinemachineCameraOffset.m_Offset = Vector3.Lerp(cinemachineCameraOffset.m_Offset, targetOffset.position, targetOffset.lerp * Time.deltaTime);
             cinemachineRecomposer.m_Dutch = Mathf.Lerp(cinemachineRecomposer.m_Dutch, targetOffset.dutch, targetOffset.lerp * Time.deltaTime);
+            cinemachineRecomposer.m_Dutch += shakeDutch;
+            cinemachineRecomposer.m_Tilt = shakeTilt;
+            cinemachineRecomposer.m_Pan = shakePan;
         }
 
+        public void SetShake(float dutch, float tilt, float pan)
+        {
+            shakeDutch = dutch;
+            shakeTilt = tilt;
+            shakePan = pan;
+        }
+        
         private void PlaceCameraUnderWall(Vector3 wallNormal)
         {
             // TODO : Make this work
