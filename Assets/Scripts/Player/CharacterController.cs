@@ -2,9 +2,7 @@ using System;
 using KinematicCharacterController;
 using Player.Grapple;
 using Player.Inputs;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Player
 {
@@ -13,7 +11,7 @@ namespace Player
     public class CharacterController : MonoBehaviour, ICharacterController
     {
         [Header("References")]
-        [SerializeField] private Transform cameraTransform;
+        [SerializeField] private UnityEngine.Camera camera;
         [SerializeField] private GrappleController grappleController;
         [Header("Parameters")]
         [Header("General")]
@@ -139,6 +137,8 @@ namespace Player
         
         private MovementMode characterMovementMode = MovementMode.Airborn;
         public MovementMode CharacterMovementMode => characterMovementMode;
+        
+        public UnityEngine.Camera Camera => camera;
 
         public enum MovementMode
         {
@@ -354,11 +354,11 @@ namespace Player
 
             if (characterMovementMode != MovementMode.Wallrun)
             {
-                Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.forward, motor.CharacterUp).normalized;
+                Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(camera.transform.rotation * Vector3.forward, motor.CharacterUp).normalized;
                 if (cameraPlanarDirection.sqrMagnitude == 0f)
                 {
                     // Get Target Direction
-                    cameraPlanarDirection = Vector3.ProjectOnPlane(cameraTransform.rotation * Vector3.up, motor.CharacterUp).normalized;
+                    cameraPlanarDirection = Vector3.ProjectOnPlane(camera.transform.rotation * Vector3.up, motor.CharacterUp).normalized;
                 }
             
                 Vector3 smoothedLookInputDirection = Vector3.Slerp(motor.CharacterForward, cameraPlanarDirection, 1 - Mathf.Exp(-orientationSharpness * deltaTime)).normalized;
@@ -754,7 +754,7 @@ namespace Player
         
         private Vector3 GetInputOrientationAccordingToCharacterForward(Vector3 inputDirection)
         {
-            forwardFromCamera = cameraTransform.rotation * inputDirection;
+            forwardFromCamera = camera.transform.rotation * inputDirection;
             Vector3 inputRight = Vector3.Cross(forwardFromCamera, motor.CharacterUp);
             Vector3 correctedInput = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized * forwardFromCamera.magnitude;
             return correctedInput;

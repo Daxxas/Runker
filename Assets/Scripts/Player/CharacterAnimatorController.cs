@@ -10,7 +10,6 @@ namespace Player
     {
         private CharacterController characterController;
         private KinematicCharacterMotor characterMotor;
-        [SerializeField] private Transform camera;
         [SerializeField] private float smoothAnimation = 1f;
         private Animator animator;
         private Vector2 direction = Vector2.zero;
