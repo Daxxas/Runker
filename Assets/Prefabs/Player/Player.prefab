@@ -1569,7 +1569,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d90af2abc23b8974ab06176fb38f03eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera: {fileID: 0}
+  camera: {fileID: 746883986721379766}
   grappleController: {fileID: 1045441038}
   gravity: 9.81
   momentumMinimum: 0.01
@@ -1660,7 +1660,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grappleOrigin: {fileID: 8646695859548661753}
-  camera: {fileID: 0}
+  camera: {fileID: 746883986721379765}
   grappleMaxDistance: 50
   grappleMask:
     serializedVersion: 2
@@ -1690,7 +1690,7 @@ MonoBehaviour:
   aimTargetIK: {fileID: 210771070}
   targetOffset: {x: 0, y: 1.5, z: 0}
   rayStartPositionOffset: {x: 0, y: 2, z: 0}
-  camera: {fileID: 0}
+  camera: {fileID: 746883986721379766}
   aimTargetMaxDistance: 10
   aimSharpness: 15
   ikTransitionSharpness: 15
@@ -3271,12 +3271,12 @@ PrefabInstance:
     - target: {fileID: 746883985357733649, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.07079827
+      value: 0.07079828
       objectReference: {fileID: 0}
     - target: {fileID: 746883985357733649, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.010390978
+      value: 0.010390979
       objectReference: {fileID: 0}
     - target: {fileID: 746883985357733649, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
@@ -3326,12 +3326,12 @@ PrefabInstance:
     - target: {fileID: 746883985414589255, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.000000030489364
+      value: -0.00000002275323
       objectReference: {fileID: 0}
     - target: {fileID: 746883985414589255, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.000000003753411
+      value: -0.0000000018907127
       objectReference: {fileID: 0}
     - target: {fileID: 746883985414589255, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
@@ -3348,6 +3348,26 @@ PrefabInstance:
       propertyPath: m_LookAt
       value: 
       objectReference: {fileID: 8646695859250006197}
+    - target: {fileID: 746883985650114448, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: m_XAxis.m_AccelTime
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114448, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: m_XAxis.m_DecelTime
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114448, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: m_YAxis.m_AccelTime
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114448, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: m_YAxis.m_DecelTime
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 746883985650114454, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: characterShooter
@@ -3376,12 +3396,12 @@ PrefabInstance:
     - target: {fileID: 746883985666063350, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.00000002275323
+      value: -0.000000030489364
       objectReference: {fileID: 0}
     - target: {fileID: 746883985666063350, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.0000000018907127
+      value: -0.000000003753411
       objectReference: {fileID: 0}
     - target: {fileID: 746883985666063350, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
@@ -3423,6 +3443,12 @@ PrefabInstance:
 --- !u!4 &746883986721379765 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 746883985357733649, guid: b1ff6dc29413c374192da00c371147c4,
+    type: 3}
+  m_PrefabInstance: {fileID: 1465412260}
+  m_PrefabAsset: {fileID: 0}
+--- !u!20 &746883986721379766 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 746883985357733650, guid: b1ff6dc29413c374192da00c371147c4,
     type: 3}
   m_PrefabInstance: {fileID: 1465412260}
   m_PrefabAsset: {fileID: 0}
