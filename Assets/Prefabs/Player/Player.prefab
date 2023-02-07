@@ -81,7 +81,7 @@ MonoBehaviour:
     m_SourceObjects:
       m_Length: 1
       m_Item0:
-        transform: {fileID: 210771070}
+        transform: {fileID: 0}
         weight: 1
       m_Item1:
         transform: {fileID: 0}
@@ -167,7 +167,7 @@ MonoBehaviour:
     m_SourceObjects:
       m_Length: 1
       m_Item0:
-        transform: {fileID: 210771070}
+        transform: {fileID: 0}
         weight: 1
       m_Item1:
         transform: {fileID: 0}
@@ -1687,7 +1687,7 @@ MonoBehaviour:
   rig: {fileID: 1135934612}
   characterShooter: {fileID: 772771440}
   animator: {fileID: 8646695859555911765}
-  aimTargetIK: {fileID: 210771070}
+  aimTargetIK: {fileID: 0}
   targetOffset: {x: 0, y: 1.5, z: 0}
   rayStartPositionOffset: {x: 0, y: 2, z: 0}
   camera: {fileID: 0}
