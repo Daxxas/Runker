@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Player;
-using Player.Inputs;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -12,8 +8,8 @@ public class CharacterAimIK : MonoBehaviour
     [SerializeField] private Rig rig;
     [SerializeField] private CharacterShooter characterShooter;
     [SerializeField] private Animator animator;
-    
     [SerializeField] private Transform aimTargetIK;
+
     [SerializeField] private Vector3 targetOffset;
     [SerializeField] private Vector3 rayStartPositionOffset;
     [SerializeField] private Camera camera;
@@ -23,8 +19,9 @@ public class CharacterAimIK : MonoBehaviour
     [SerializeField] private LayerMask aimable;
 
     private Vector3 aimTargetPosition;
-    private float targetRigWeight = 0f;
-    
+    private float targetRigWeight = 0f;    
+
+
     private void Start()
     {
         characterShooter.onAim += SetEnableAimIK;
