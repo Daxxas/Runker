@@ -17,6 +17,7 @@ namespace Player.Inputs
         private void Awake()
         {
             mainInputs = new MainInputs();
+
             mainInputs.Main.Move.performed += context => onMove?.Invoke(context.ReadValue<Vector2>());
             mainInputs.Main.Move.canceled += context => onMove?.Invoke(context.ReadValue<Vector2>());
 
