@@ -55,6 +55,7 @@ namespace Player
         [SerializeField] private float wallRunHoldDuration = 3f;
         [SerializeField] private float wallRunCooldown = 3f;
         [SerializeField] private float wallRunDrag = 0.1f;
+        [SerializeField] private float wallRunSharpness = 0.1f;
         [SerializeField] [Range(80f,90f)] private float wallRunMinAngle = 88f;
         [SerializeField] private float wallRunDetectionDistance = 0.2f;
         [SerializeField] private float wallRunGripStrength = 2f;
@@ -291,7 +292,7 @@ namespace Player
 
                 Vector3 targetVelocity = wallRunDirection * wallRunSpeed;// * (wallRunSpeed * inputProvider.MoveDirection.y);
                 Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
-                currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-walkSharpness * deltaTime));
+                currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-wallRunSharpness * deltaTime));
                 currentVelocity += momentum;
 
                 if (lastWallCollider != null && wallHit.collider.TryGetComponent(out PhysicsMover mover))
