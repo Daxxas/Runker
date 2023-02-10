@@ -34,9 +34,11 @@ namespace Player
         [SerializeField] private float tiltMax = 10f;
         [SerializeField] private float tiltSharpness = 1f;
         [SerializeField] private float velocityTiltMultiplier = 0.5f;
-        
+
         [Header("Shake")] 
-        [SerializeField] private float landShake;
+        [SerializeField] private float minVelocityShake = 40f;
+        [SerializeField] private float maxVelocityShake = 70f;
+        [SerializeField] [Range(0f,1f)] private float velocityShakeDelta = .3f;
         
         [Header("Offsets")]
         [SerializeField] private CameraOffset slideOffset;
@@ -77,6 +79,8 @@ namespace Player
 
         private void Update()
         {
+            cameraShaker.SetFixedShake(Mathf.Lerp(0f, velocityShakeDelta, (characterController.Motor.Velocity.magnitude - minVelocityShake) / (maxVelocityShake - minVelocityShake)));
+            
             float targetFov = Mathf.Lerp(minFov, maxFov, interpolationFov.Evaluate(characterController.HorizontalVelocity.magnitude / maxSpeedFov));
             cinemachine.m_Lens.FieldOfView = Mathf.Lerp(cinemachine.m_Lens.FieldOfView, targetFov, Time.deltaTime * sharpnessFov);
             

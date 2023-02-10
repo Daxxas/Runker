@@ -14,22 +14,31 @@ namespace Player.Camera
         
         
         private float currentShake = 0f;
+        private float fixedShake = 0f;
 
         public float CurrentShake
         {
-            get => currentShake;
+            get => currentShake + fixedShake;
             set => currentShake = Mathf.Clamp01(value);
         }
 
         public void AddShake(float value)
         {
+            Debug.Log("Add Shake " + value);
             CurrentShake += value;
+        }
+        
+        public void SetFixedShake(float value)
+        {
+            Debug.Log("Set Fixed Shake " + value);
+
+            fixedShake = value;
         }
 
         [ContextMenu("Debug Shake")]
         public void DebugShake()
         {
-            AddShake(1f);
+            SetFixedShake(.4f);
         }
         
         private float GetShake(int seed, float time, float frequency = 1f)
@@ -39,12 +48,12 @@ namespace Player.Camera
 
         private void Update()
         {
-            CurrentShake -= shakeReductionRate * Time.deltaTime;
+            currentShake = Mathf.Clamp01(currentShake - shakeReductionRate * Time.deltaTime);
             float tiltShake = tiltRange * Mathf.Pow(CurrentShake, 2) * GetShake(1, Time.time, perlinFrequency);
             float panShake = panRange * Mathf.Pow(CurrentShake, 2) * GetShake(2, Time.time, perlinFrequency);
             float dutchShake = dutchRange * Mathf.Pow(CurrentShake, 2) * GetShake(3, Time.time, perlinFrequency);
 
-            Debug.Log("CurrentShake = " + CurrentShake + " Square Shake = " + Mathf.Pow(CurrentShake, 2) );
+            Debug.Log("CurrentShake = " + CurrentShake + " Square Shake = " + Mathf.Pow(CurrentShake, 2) + " Fixed Shake = " + fixedShake + " Current Shake = " + currentShake);
             cameraController.SetShake(dutchShake, tiltShake, panShake);
         }
     }
