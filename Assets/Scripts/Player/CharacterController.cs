@@ -116,7 +116,7 @@ namespace Player
         
         // Wall Jump
         private int wallJumpFrameCount = 0;
-        private bool wallJumpPreventingWallRun => wallJumpFrameCount < wallJumpDisabledFrames;
+        private bool wallJumpPreventingWallGrip => wallJumpFrameCount < wallJumpDisabledFrames;
 
         // Wallrun
         RaycastHit wallHit;
@@ -197,10 +197,15 @@ namespace Player
         {
             UpdateState();
 
+            // Reset attached body override at the start of the frame in case we were attached to something last frame
+            motor.AttachedRigidbodyOverride = null;
+
+            
             Vector3 effectiveGroundNormal = motor.GroundingStatus.GroundNormal;
             
             // Adjust velocity to ground normal
-            currentVelocity = motor.GetDirectionTangentToSurface(currentVelocity, effectiveGroundNormal) * HorizontalVelocity.magnitude;
+            if(motor.GroundingStatus.IsStableOnGround)
+                currentVelocity = motor.GetDirectionTangentToSurface(currentVelocity, effectiveGroundNormal) * HorizontalVelocity.magnitude;
             
             // Round momentum to zero if too small
             if (momentum.magnitude < momentumMinimum)
@@ -277,35 +282,39 @@ namespace Player
                 groundTime += deltaTime;
 
                 momentum *= 1f / (1f + (wallRunDrag * deltaTime));
-                momentum.y += -wallRunGravity * mass * deltaTime; // Apply gravity
-                
+
                 // Calculate wallrun direction
                 Vector3 wallRunDirection;
                 if (touchingWall == TouchingWallState.Front)
                 {
                     wallRunDirection = motor.CharacterUp;
+                    momentum = Vector3.zero;
                 }
                 else
                 {
                     wallRunDirection = motor.CharacterForward;
+                    momentum.y += -wallRunGravity * mass * deltaTime; // Apply gravity only when not wallrunning up
                 }
 
                 Vector3 targetVelocity = wallRunDirection * wallRunSpeed;// * (wallRunSpeed * inputProvider.MoveDirection.y);
+
                 Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-wallRunSharpness * deltaTime));
                 currentVelocity += momentum;
 
                 if (lastWallCollider != null && wallHit.collider.TryGetComponent(out PhysicsMover mover))
                 {
-                    currentVelocity += mover.Velocity;
+                    motor.AttachedRigidbodyOverride = mover.Rigidbody;
                 }
                 
-                if (!wallJumpPreventingWallRun)
+                if (!wallJumpPreventingWallGrip)
                 {
                     currentVelocity += wallRunGripStrength * -wallHit.normal; // Apply grip velocity to stick on wall
                 }
+                
+                Debug.Log(  targetVelocity + " " + momentum + " " + currentVelocity);
             }
-
+            
             if (characterMovementMode is MovementMode.Grapple)
             {
                 momentum += (grappleController.GrapplePoint - motor.transform.position).normalized * (grappleController.GrappleAcceleration * deltaTime);
@@ -384,7 +393,7 @@ namespace Player
 
         public void BeforeCharacterUpdate(float deltaTime)
         {
-            if (wallJumpPreventingWallRun)
+            if (wallJumpPreventingWallGrip)
             {
                 wallJumpFrameCount++;
             }
@@ -486,7 +495,7 @@ namespace Player
                 !motor.GroundingStatus.IsStableOnGround && // if not grounded
                 (!wallRunOnCooldown || hasTouchedGroundSinceWallrun) && // if not on cooldown
                 (canHoldOnWall || characterMovementMode != MovementMode.Wallrun) && // if can still hold the wall run
-                !wallJumpPreventingWallRun) 
+                !wallJumpPreventingWallGrip) 
             {
                 shouldWallRun = true;
                 // if wall run just started
@@ -507,7 +516,7 @@ namespace Player
             Vector3 inputDirection = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
             bool inputAwayFromWall = (inputDirection - wallHit.normal).magnitude < 1f;
             
-            if(characterMovementMode == MovementMode.Wallrun && !wallJumpPreventingWallRun && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun ||
+            if(characterMovementMode == MovementMode.Wallrun && !wallJumpPreventingWallGrip && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun ||
                    (jumpRequest && JumpBufferIsValid)))
             {
                 onWallRunRelease?.Invoke();
