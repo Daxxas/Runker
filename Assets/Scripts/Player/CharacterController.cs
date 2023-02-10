@@ -300,7 +300,7 @@ namespace Player
                 currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-wallRunSharpness * deltaTime));
                 currentVelocity += momentum;
 
-                if (lastWallCollider != null && wallHit.collider.TryGetComponent(out PhysicsMover mover))
+                if (lastWallCollider != null && wallHit.collider != null && wallHit.collider.TryGetComponent(out PhysicsMover mover))
                 {
                     motor.AttachedRigidbodyOverride = mover.Rigidbody;
                 }
