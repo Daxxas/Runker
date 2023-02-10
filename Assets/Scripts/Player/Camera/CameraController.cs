@@ -14,6 +14,7 @@ namespace Player
         [SerializeField] private CinemachineFreeLook cinemachine;
         [SerializeField] private CinemachineCameraOffset cinemachineCameraOffset;
         [SerializeField] private CinemachineRecomposer cinemachineRecomposer;
+        [SerializeField] private CameraShaker cameraShaker;
 
         [Header("FoV")] 
         [SerializeField] private float minFov = 40f;
@@ -34,9 +35,8 @@ namespace Player
         [SerializeField] private float tiltSharpness = 1f;
         [SerializeField] private float velocityTiltMultiplier = 0.5f;
         
-        [Header("Impulses")] 
-        // [SerializeField] private CameraTiltImpulse landImpulse;
-        // [SerializeField] private float landImpulseAmplitude = 1f;
+        [Header("Shake")] 
+        [SerializeField] private float landShake;
         
         [Header("Offsets")]
         [SerializeField] private CameraOffset slideOffset;
@@ -45,6 +45,7 @@ namespace Player
         [SerializeField] private CameraOffset verticalWallrunOffset;
         [SerializeField] private CameraOffset aimOffset;
         
+        private CameraOffset currentOffset;
         private CameraOffset targetOffset;
 
         private float shakeTilt = 0f;
@@ -177,10 +178,12 @@ namespace Player
                 composer[i].m_ScreenX = Mathf.Lerp(composer[i].m_ScreenX, targetScreenX, Time.deltaTime * wallAdjustmentLerp);
             }
             
+            currentOffset.position = Vector3.Lerp(currentOffset.position, targetOffset.position, targetOffset.lerp * Time.deltaTime);
+            currentOffset.dutch = Mathf.Lerp(currentOffset.dutch, targetOffset.dutch, targetOffset.lerp * Time.deltaTime);
             
-            cinemachineCameraOffset.m_Offset = Vector3.Lerp(cinemachineCameraOffset.m_Offset, targetOffset.position, targetOffset.lerp * Time.deltaTime);
-            cinemachineRecomposer.m_Dutch = Mathf.Lerp(cinemachineRecomposer.m_Dutch, targetOffset.dutch, targetOffset.lerp * Time.deltaTime);
-            cinemachineRecomposer.m_Dutch += shakeDutch;
+            cinemachineCameraOffset.m_Offset = currentOffset.position;
+            
+            cinemachineRecomposer.m_Dutch = shakeDutch + currentOffset.dutch;
             cinemachineRecomposer.m_Tilt = shakeTilt;
             cinemachineRecomposer.m_Pan = shakePan;
         }
