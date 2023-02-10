@@ -16,6 +16,7 @@ namespace Player.Grapple
         [SerializeField] private LayerMask grappleMask;
         [SerializeField] private float grappleAirControl = 1f;
         [SerializeField] private float grappleForceReleaseMaxDistance = .5f;
+        [SerializeField] private float grappleOriginMinDistanceFromGrapplePoint = .5f;
         public float GrappleAirControl => grappleAirControl;
         [SerializeField] private float grappleAcceleration;
         public float GrappleAcceleration => grappleAcceleration;
@@ -109,12 +110,19 @@ namespace Player.Grapple
                     pull.Pull((grapplePoint - grappleOrigin.position).normalized, -grappleAcceleration);
                 }
                 
+                // Check if there's something between grapple point and grapple origin
                 if (Physics.Raycast(grappleOrigin.position, grapplePoint - grappleOrigin.position, out var deltaHit, currentThrowDistance, grappleMask))
                 {
                     if((deltaHit.point - grapplePoint).magnitude > grappleForceReleaseMaxDistance)
                         ReleaseGrapple();
                 }
                 
+                // Check if grapple origin is too close from grapple point
+                if ((grappleOrigin.position - grapplePoint).magnitude < grappleOriginMinDistanceFromGrapplePoint)
+                {
+                    ReleaseGrapple();
+                }
+
                 lastGrappleHitColliderPosition = grappleHitCollider.transform.position;
             }
         }
