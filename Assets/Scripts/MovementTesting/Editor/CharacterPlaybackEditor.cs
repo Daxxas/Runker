@@ -8,12 +8,15 @@ public class CharacterPlaybackEditor : Editor
 {
     public Object source;
     
+    SerializedProperty recordedPositions;
+    
     public override void OnInspectorGUI()
     {
         CharacterPlayback characterPlayback = (CharacterPlayback)target;
          
         EditorGUI.BeginChangeCheck();
 
+        SaveDuringPlay.SaveDuringPlay.Enabled = EditorGUILayout.Toggle("Save During Play", SaveDuringPlay.SaveDuringPlay.Enabled);
         
         string buttonText = characterPlayback.recording ? "Stop Recording" : "Start Recording";
         
@@ -22,13 +25,7 @@ public class CharacterPlaybackEditor : Editor
             characterPlayback.Record(!characterPlayback.recording);
 
         }
-        
-        if(GUILayout.Button("Save"))
-        {
-            // serializedObject.FindProperty("recordedPositions").arraySize = characterPlayback.recordedPositions.Count;
-            // serializedObject.ApplyModifiedProperties();
-        }
-        
+
         if(GUILayout.Button("Reload Line Renderer"))
         {
             var lineRenderer = characterPlayback.GetComponent<LineRenderer>();
@@ -38,6 +35,8 @@ public class CharacterPlaybackEditor : Editor
             {
                 lineRenderer.SetPosition(i, characterPlayback.recordedPositions[i].position);
             }
+
+            lineRenderer.useWorldSpace = false;
         }
         
         base.OnInspectorGUI();

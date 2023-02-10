@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using CharacterController = Player.CharacterController;
 
 namespace MovementTesting
 {
+    [SaveDuringPlay]
     public class CharacterPlayback : MonoBehaviour
     {
         [Header("References")]
@@ -14,6 +16,7 @@ namespace MovementTesting
         
         [Header("Parameters")]
         [SerializeField] private float minimumDistanceBetweenPoints = .05f;
+        [SaveDuringPlay]
         [SerializeField] public List<CharacterPosition> recordedPositions = new List<CharacterPosition>();
 
         public bool recording = false;
@@ -31,6 +34,7 @@ namespace MovementTesting
             {
                 recordedPositions.Clear();
                 lineRenderer.positionCount = 0;
+                lineRenderer.useWorldSpace = true;
                 CreatePosition();
             }
         }
@@ -62,15 +66,6 @@ namespace MovementTesting
             });
             lineRenderer.positionCount += 1;
             lineRenderer.SetPosition(lineRenderer.positionCount - 1, targetTransform.position);
-        }
-
-        private void OnApplicationQuit()
-        {
-            lineRenderer.positionCount = recordedPositions.Count;
-            for (int i = 0; i < recordedPositions.Count; i++)
-            {
-                lineRenderer.SetPosition(i, recordedPositions[i].position);
-            }
         }
     }
     
