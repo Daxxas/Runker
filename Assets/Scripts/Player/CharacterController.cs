@@ -200,7 +200,6 @@ namespace Player
             // Reset attached body override at the start of the frame in case we were attached to something last frame
             motor.AttachedRigidbodyOverride = null;
 
-            
             Vector3 effectiveGroundNormal = motor.GroundingStatus.GroundNormal;
             
             // Adjust velocity to ground normal
@@ -288,7 +287,6 @@ namespace Player
                 if (touchingWall == TouchingWallState.Front)
                 {
                     wallRunDirection = motor.CharacterUp;
-                    momentum = Vector3.zero;
                 }
                 else
                 {
@@ -333,7 +331,7 @@ namespace Player
                     momentum = momentum * (1f - aerialJumpDirectionInfluence) + (aerialJumpDirectionInfluence * momentum.magnitude * motor.CharacterForward);
                     aerialJumpCount++;
                 }
-                
+
                 jumpRequest = false;
                 onJump?.Invoke();
                 float angleCoef = jumpAngle / 90f;
@@ -389,6 +387,9 @@ namespace Player
                 // force character orientation to be perpendicular to wall
                 currentRotation = Quaternion.LookRotation(-wallHit.normal, motor.CharacterUp);
             }
+
+            currentRotation.x = 0;
+            currentRotation.z = 0;
         }
 
         public void BeforeCharacterUpdate(float deltaTime)

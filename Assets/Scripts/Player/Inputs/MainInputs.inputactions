@@ -196,6 +196,17 @@
                 },
                 {
                     "name": "",
+                    "id": "87e3a300-89c2-4ee7-9d0c-75a08d2b2a43",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "57405dc3-c564-4f28-a16a-8d7cd1ac9fdd",
                     "path": "<Keyboard>/space",
                     "interactions": "",
@@ -350,12 +361,12 @@
                 },
                 {
                     "name": "",
-                    "id": "5b92e223-d137-42ae-8aa8-6b88ae21557d",
+                    "id": "3a00fec2-43dc-4318-b59b-b9244670b5af",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
-                    "action": "Aim",
+                    "action": "Grapple",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
