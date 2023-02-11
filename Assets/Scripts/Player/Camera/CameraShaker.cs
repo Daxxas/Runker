@@ -30,8 +30,6 @@ namespace Player.Camera
         
         public void SetFixedShake(float value)
         {
-            Debug.Log("Set Fixed Shake " + value);
-
             fixedShake = value;
         }
 
@@ -53,7 +51,6 @@ namespace Player.Camera
             float panShake = panRange * Mathf.Pow(CurrentShake, 2) * GetShake(2, Time.time, perlinFrequency);
             float dutchShake = dutchRange * Mathf.Pow(CurrentShake, 2) * GetShake(3, Time.time, perlinFrequency);
 
-            Debug.Log("CurrentShake = " + CurrentShake + " Square Shake = " + Mathf.Pow(CurrentShake, 2) + " Fixed Shake = " + fixedShake + " Current Shake = " + currentShake);
             cameraController.SetShake(dutchShake, tiltShake, panShake);
         }
     }

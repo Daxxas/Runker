@@ -1669,6 +1669,7 @@ MonoBehaviour:
   grappleAirControl: 0.1
   grappleForceReleaseMaxDistance: 0.5
   grappleOriginMinDistanceFromGrapplePoint: 1.5
+  grappleAimAssistRadius: 2
   grappleAcceleration: 60
   grappleResistance: 10
   grappleStopMomentumThreshold: 50

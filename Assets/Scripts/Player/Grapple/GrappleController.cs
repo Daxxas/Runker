@@ -17,6 +17,7 @@ namespace Player.Grapple
         [SerializeField] private float grappleAirControl = 1f;
         [SerializeField] private float grappleForceReleaseMaxDistance = .5f;
         [SerializeField] private float grappleOriginMinDistanceFromGrapplePoint = .5f;
+        [SerializeField] private float grappleAimAssistRadius = 1f;
         public float GrappleAirControl => grappleAirControl;
         [SerializeField] private float grappleAcceleration;
         public float GrappleAcceleration => grappleAcceleration;
@@ -130,7 +131,16 @@ namespace Player.Grapple
         private void ThrowGrapple()
         {
             currentGrappleState = GrappleState.Throw;
-            grappleTargetPoint = grappleOrigin.position + camera.forward * grappleMaxDistance;
+
+            if (Physics.SphereCast(grappleOrigin.position, grappleAimAssistRadius, camera.forward, out var hit, grappleMaxDistance, grappleMask))
+            {
+                Debug.DrawLine(grappleOrigin.position, hit.point, Color.yellow, 2f);
+                grappleTargetPoint = hit.point;
+            }
+            else
+            {
+                grappleTargetPoint = grappleOrigin.position + camera.forward * grappleMaxDistance;
+            }
             
             Color debugColor = Color.red;
             Debug.DrawLine(grappleOrigin.position, grappleOrigin.position + (camera.forward * grappleMaxDistance), debugColor, 2f);
