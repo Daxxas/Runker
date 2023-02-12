@@ -16,58 +16,109 @@ namespace Player
         [Header("Parameters")]
         [Header("General")]
         [SerializeField] private float gravity = 30f;
+        [Tooltip("Minimum magnitude for momentum for it to not be instantly reduced to 0")]
         [SerializeField] private float momentumMinimum = 0.01f;
+        [Tooltip("Mass of the player, act as a coefficient for gravity when not sliding")]
         [SerializeField] private float mass = 10f;
-        [SerializeField] private float slideCapsuleHeight = 1f;
-        [SerializeField] private float slideCapsuleOffset = .5f;
+        [Tooltip("Default height of the capsule")]
         [SerializeField] private float normalCapsuleHeight = 2f;
+        [Tooltip("Default offset of the capsule")]
         [SerializeField] private float normalCapsuleOffset = 1f;
+        [Tooltip("Height of the capsule when sliding")]
+        [SerializeField] private float slideCapsuleHeight = 1f;
+        [Tooltip("Offset of the capsule when sliding")]
+        [SerializeField] private float slideCapsuleOffset = .5f;        
         [Header("Walk")]
+        [Tooltip("Move speed when walking")]
         [SerializeField] private float groundedMoveSpeed = 5f;
+        [Tooltip("How reactive will the character be to follow the camera orientation \nNOTE : All the sharpness variables don't make senses matematically yet and can only be guessed")]
         [SerializeField] private float orientationSharpness = 10f;
+        [Tooltip("How fast the character will adjust its speed to the walk speed (also affect how much it will decreases when he stops walking too) \nNOTE : All the sharpness variables don't make senses matematically yet and can only be guessed")]
         [SerializeField] private float walkSharpness = 10f;
         [Header("Run")]
+        [Tooltip("Move speed when running")]
         [SerializeField] private float groundedRunSpeed = 7f;
+        [Tooltip("How fast the character will adjust its speed to the run speed (also affect how much it will decreases when he stops running too) \nNOTE : All the sharpness variables don't make senses matematically yet and can only be guessed")]
         [SerializeField] private float runSharpness = 10f;
         [Header("Slide")]
+        [Tooltip("How fast the slide will adjust the current momentum to what it should be : determined by the slope angle, mass and gravity, bigger the slope, bigger the mass, faster it will try to be")]
         [SerializeField] private float slideSharpness = 10f;
+        [Tooltip("Momentum gained when starting a sliding (when the boost is not on cooldown)")]
         [SerializeField] private float slideBoost = 5f;
+        [Tooltip("The minimum velocity to slide")]
         [SerializeField] private float slideBoostMinimumHorizontalVelocity = 5f;
+        [Tooltip("The minimum grounded time spent to have the slide boost, also resets when the boost is gained")]
         [SerializeField] private float slideGroundTimeMinimum = 3f;
+        [Tooltip("The mass of the character when sliding (to have more speed on slopes) \nNOTE: Maybe it would be better to simply have a slide drag instead of this")]
         [SerializeField] private float slideMass = 3f;
-        [Header("Jump")] 
-        [SerializeField] [Range(0f, 90f)] private float jumpAngle = 90f; 
+        
+        [Header("Jump")]
+        [Tooltip("The vertical force given when jumping")]
         [SerializeField] private float jumpForce = 5f;
+        [Tooltip("The gravity multiplier applied when not holding jump (and momentum is going up !), makes the character go down faster when not holding jump")]
         [SerializeField] private float jumpHoldGravityMultiplier  = 5f;
+        [Tooltip("The friction the air while airborn, will affect how much the character loses speed while in the air")]
         [SerializeField] private float airDrag = 0.01f;
+        [Tooltip("The acceleration force the player can influence the character in the air")]
         [SerializeField] private float airControlForce = 0.01f;
+        [Tooltip("Aerial jump amount")]
         [SerializeField] private int aerialJumpMax = 1;
+        [Tooltip("Percentage in which an aerial jump redirect the momentum direction (0 = no redirection at all, 1 = complete redirection)")]
         [SerializeField] [Range(0f, 1f)] private float aerialJumpDirectionInfluence = 1f;
+        [Tooltip("Duration in which a jump can be buffered before touching ground")]
         [SerializeField] private float jumpBufferDuration = .2f;
+        
         [Header("Wallrun")]
+        [Tooltip("Layers that can be wallruned")]
         [SerializeField] private LayerMask wallRunSurfaceMask;
+        [Tooltip("Gravity when wallrunning")]
         [SerializeField] private float wallRunGravity = 9.81f;
-        [SerializeField] private float wallRunSpeed = 7f;
-        [SerializeField] private float wallRunYBoost = 2f;
+        [Tooltip("Minimum horizontal speed when wallrunning, set the velocity of the character to this value when the momentum is under this value")]
+        [SerializeField] private float wallRunMinimumHorizontalSpeed = 7f;
+        [Tooltip("Y Boost given when starting a horizontal wallrun")]
+        [SerializeField] private float horizontalWallrunStartYSpeed = 2f;
+        [Tooltip("WIP Does nothing yet")]
         [SerializeField] private float wallRunMinimumHorizontalVelocity = 0.1f;
+        [Tooltip("Velocity when releasing wallrunning (NB : when leaving wallrun while NOT jumping)")]
         [SerializeField] private float wallRunReleaseVelocity = 2f;
-        [SerializeField] private float verticalWallRunReleaseVelocity = 2f;
+        [Tooltip("Maximum duration of a wallrun")]
         [SerializeField] private float wallRunHoldDuration = 3f;
+        [Tooltip("Cooldown of a wallrun when releasing a wallrun (does NOT apply when the character leaves a wall run because of a wall jump)")]
         [SerializeField] private float wallRunCooldown = 3f;
-        [SerializeField] private float wallRunDrag = 0.1f;
-        [SerializeField] private float wallRunSharpness = 0.1f;
+        [Tooltip("Momentum horizontal drag when wallrunning")]
+        [SerializeField] private float wallRunHorizontalDrag = 0.1f;
+        [Tooltip("Momentum vertical drag when wallrunning")]
+        [SerializeField] private float wallRunVerticalDrag = 0.1f;
+        [Tooltip("Minimum angle of wall to be able to wallrun on")]
         [SerializeField] [Range(80f,90f)] private float wallRunMinAngle = 88f;
+        [Tooltip("Distance to detect a wall to run on")]
         [SerializeField] private float wallRunDetectionDistance = 0.2f;
+        [Tooltip("Amount force that pushes the player onto the wall to stick to it")]
         [SerializeField] private float wallRunGripStrength = 2f;
+        [Tooltip("How sharp the character will turn to match the wall orientation")]
         [SerializeField] private float wallRotationSharpness = 2f;
+        
+        [Header("Vertical wallrun")]
+        [Tooltip("Minimum vertical speed when (VERTICAL only) wallrunning, set the velocity of the character to this value when the vertical momentum is under this value")]
+        [SerializeField] private float wallRunMinimumVerticalSpeed = 7f;
+        [Tooltip("Velocity when vertical wallrun reaches the end of a wall")]
+        [SerializeField] private float verticalWallRunReleaseVelocity = 2f;
+        [Tooltip("How long the character can't be grounded when exiting vertical wallrun")]
         [SerializeField] private float wallRunVerticalExitUngroundForceTime = .2f;
+        
         [Header("Walljump")]
-        [SerializeField] private float wallJumpVelocity = 2f;
-        [SerializeField] private float wallJumpForwardBoost = 2f;
+        [Tooltip("Walljump angle from wall")]
         [SerializeField] [Range(0f, 90f)] private float wallJumpAngle = 2f;
+        [Tooltip("Velocity applied along the walljump angle to walljump")]
+        [SerializeField] private float wallJumpVelocity = 2f;        
+        [Tooltip("Forward force applied when walljumping, negative value to penalize walljump")]
+        [SerializeField] private float wallJumpForwardBoost = 2f;
+        [Tooltip("How many fixed frames the walljump disables the wallrun grip")]
         [SerializeField] private int wallJumpDisabledFrames = 5;
         [Header("Escape")] 
+        [Tooltip("Escape velocity")]
         [SerializeField] private float escapeVelocity = 5f;
+        [Tooltip("Escape cooldown")]
         [SerializeField] private float escapeCooldown = 1f;
         
         // TODO : Implement coyote time
@@ -222,16 +273,16 @@ namespace Player
                 float slopeAngle = Vector3.Angle(Vector3.up, effectiveGroundNormal);
                 float slopeSin = Mathf.Sin(Mathf.Deg2Rad * slopeAngle);
                 
-                // Make controller slide along slope
+                // TODO : Replace this to something using slide drag instead of something physically correct like what's actually here ? 
+                // Make controller slide along slope 
                 Vector3 targetVelocity = slideMass * -gravity * slopeSin * -effectiveGroundNormal;
                 
                 // Redirect target velocity along ramp instead of being perpendicular to ramp
                 targetVelocity = motor.GetDirectionTangentToSurface(targetVelocity, effectiveGroundNormal) * targetVelocity.magnitude;
 
                 // momentum = targetVelocity.normalized * momentum.magnitude;
-                
                 momentum = Vector3.Slerp(momentum, targetVelocity, 1f - Mathf.Exp(-slideSharpness * deltaTime));
-
+                
                 currentVelocity = momentum;
             } 
             
@@ -246,6 +297,7 @@ namespace Player
                 currentVelocity = momentum;
             }
             
+            // NB : Not sure about having airborn & sliding logic here at the same place after re-reading
             if (characterMovementMode is MovementMode.Airborn or MovementMode.Slide) // Can slide and still be in the air
             {
                 // Gravity
@@ -280,25 +332,16 @@ namespace Player
             {
                 groundTime += deltaTime;
 
-                momentum *= 1f / (1f + (wallRunDrag * deltaTime));
-
-                // Calculate wallrun direction
-                Vector3 wallRunDirection;
-                if (touchingWall == TouchingWallState.Front)
+                momentum.x *= 1f / (1f + (wallRunHorizontalDrag * deltaTime));
+                momentum.z *= 1f / (1f + (wallRunHorizontalDrag * deltaTime));
+                momentum.y *= 1f / (1f + (wallRunVerticalDrag * deltaTime));
+                
+                if(touchingWall != TouchingWallState.Front)
                 {
-                    wallRunDirection = motor.CharacterUp;
-                }
-                else
-                {
-                    wallRunDirection = motor.CharacterForward;
                     momentum.y += -wallRunGravity * mass * deltaTime; // Apply gravity only when not wallrunning up
                 }
-
-                Vector3 targetVelocity = wallRunDirection * wallRunSpeed;// * (wallRunSpeed * inputProvider.MoveDirection.y);
-
-                Debug.DrawRay(transform.position - Vector3.up * 0.2f, targetVelocity, Color.red);
-                currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, 1f - Mathf.Exp(-wallRunSharpness * deltaTime));
-                currentVelocity += momentum;
+                
+                currentVelocity = momentum;
 
                 if (lastWallCollider != null && wallHit.collider != null && wallHit.collider.TryGetComponent(out PhysicsMover mover))
                 {
@@ -332,12 +375,11 @@ namespace Player
 
                 jumpRequest = false;
                 onJump?.Invoke();
-                float angleCoef = jumpAngle / 90f;
                 Vector3 jumpDirectionFromGround = Vector3.up;
                 // We want to be jump perpendicular to the ground when sliding
                 if (characterMovementMode == MovementMode.Slide)
                 {
-                    jumpDirectionFromGround = (motor.CharacterForward * (inputProvider.MoveDirection.y * (1-angleCoef)) + effectiveGroundNormal * angleCoef).normalized;
+                    jumpDirectionFromGround = effectiveGroundNormal;
                 }
                 // Redirect momentum to be along ground in case jump is requested mid air (the momentum would going downward otherwise, and adding the jump momentum make the jump weird)
                 momentum = motor.GetDirectionTangentToSurface(momentum, effectiveGroundNormal) * momentum.magnitude;
@@ -634,7 +676,7 @@ namespace Player
                 // If we were airborn, it means we are landing
                 if(characterMovementMode == MovementMode.Airborn) 
                     onLand?.Invoke();
-                
+
                 characterMovementMode = MovementMode.Grounded;
             }
             else
@@ -711,10 +753,21 @@ namespace Player
         private void WallRunStart()
         {
             wallRunStartTime = Time.time; // Used to calculate wallrun hold duration
-            Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal); // Get Velocity direction tangent to ground
+            Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal); // Get Velocity direction tangent to ground to project on the plane as it was on a plane surface
             Vector3 wallRunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal); // Apply velocity direction to wall
-            momentum = wallRunDirection.normalized; // Kill momentum when wallrunning
-            momentum.y = Mathf.Max(momentum.y, wallRunYBoost); // Boost Y velocity at start of wallrun
+
+            if (touchingWall == TouchingWallState.Front)
+            {
+                momentum.y = Mathf.Max(momentum.y, wallRunMinimumVerticalSpeed);
+                // TODO : Do I really want to kill x & z velocity when vertical wallrun ?
+                momentum.x = 0;
+                momentum.z = 0;
+            }
+            else
+            {
+                momentum = wallRunDirection.normalized * Mathf.Max(wallRunMinimumHorizontalSpeed, HorizontalVelocity.magnitude);
+                momentum.y = horizontalWallrunStartYSpeed; // Boost Y velocity at start of wallrun
+            }
         }
 
         private void WallRunEnd(TouchingWallState exitTouchingWallState)
@@ -723,7 +776,7 @@ namespace Player
             wallJumpFrameCount = 0; // Reset walljump frame count
             hasTouchedGroundSinceWallrun = false; 
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun
-            if (jumpRequest)
+            if (jumpRequest && JumpBufferIsValid)
             {
                 jumpRequest = false;
                 wallRunCooldownTime = 0f; // Don't put wallrun on cooldown
@@ -749,8 +802,9 @@ namespace Player
                     else
                     {
                         Debug.Log("NOT TOUCHING FRONT");
-                        momentum.y = verticalWallRunReleaseVelocity;
                         momentum += -wallHit.normal * wallRunReleaseVelocity;
+                        // TODO : The hold jump button gravity multiplier affects this 
+                        momentum.y = verticalWallRunReleaseVelocity;
                         motor.ForceUnground(wallRunVerticalExitUngroundForceTime);
                     }
                     

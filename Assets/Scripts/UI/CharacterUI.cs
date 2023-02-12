@@ -12,7 +12,10 @@ namespace UI
         
         private void Update()
         {
-            speedText.text = characterController.HorizontalVelocity.magnitude.ToString("F2");
+            speedText.text = " Horizontal: " + characterController.HorizontalVelocity.magnitude.ToString("F2");
+            speedText.text += "\n";
+            speedText.text += "Vertical: " + characterController.Motor.Velocity.y.ToString("F2");
+
         }
     }
 }

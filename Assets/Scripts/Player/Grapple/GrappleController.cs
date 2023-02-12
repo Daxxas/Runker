@@ -12,21 +12,21 @@ namespace Player.Grapple
         public Transform GrappleOrigin => grappleOrigin;
 
         [SerializeField] private Transform camera;
-        [SerializeField] private float grappleMaxDistance = 15f;
+        [Tooltip("Reach of the grapple")]
+        [SerializeField] private float grappleMaxDistance = 15f;        
+        [Tooltip("Layers the grapple can hook on")]
         [SerializeField] private LayerMask grappleMask;
+        [Tooltip("Air control while being pulled by the grapple")]
         [SerializeField] private float grappleAirControl = 1f;
+        [Tooltip("Bad variable name")]
         [SerializeField] private float grappleForceReleaseMaxDistance = .5f;
+        [Tooltip("Minimum distance between grapple origin point and grapple point, otherwise grapple is released")]
         [SerializeField] private float grappleOriginMinDistanceFromGrapplePoint = .5f;
+        [Tooltip("Aim assist radius for grapple")]
         [SerializeField] private float grappleAimAssistRadius = 1f;
         public float GrappleAirControl => grappleAirControl;
         [SerializeField] private float grappleAcceleration;
         public float GrappleAcceleration => grappleAcceleration;
-        [SerializeField] private float grappleResistance = 10f;
-        public float GrappleResistance => grappleResistance;
-        [SerializeField] private float grappleStopMomentumThreshold = 1.1f;
-        public float GrappleStopMomentumThreshold => grappleStopMomentumThreshold;
-        [SerializeField] private float grappleMinHoldPower = 1.1f;
-        public float GrappleMinHoldPower => grappleMinHoldPower;
         [SerializeField] private float grappleThrowSpeed = 1f;
 
         private float currentThrowDistance = 0f;
