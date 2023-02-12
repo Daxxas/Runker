@@ -309,8 +309,6 @@ namespace Player
                 {
                     currentVelocity += wallRunGripStrength * -wallHit.normal; // Apply grip velocity to stick on wall
                 }
-                
-                Debug.Log(  targetVelocity + " " + momentum + " " + currentVelocity);
             }
             
             if (characterMovementMode is MovementMode.Grapple)
@@ -440,11 +438,11 @@ namespace Player
             Debug.DrawRay(toWallLeftForwardRay.origin, toWallLeftForwardRay.direction, Color.magenta);
             Debug.DrawRay(toWallFrontRay.origin, toWallLeftForwardRay.direction, Color.green);
             
-            bool leftWall = Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
-            bool leftForwardWall = Physics.Raycast(toWallLeftForwardRay, out RaycastHit leftForwardHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
-            bool rightWall = Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
-            bool rightForwardWall = Physics.Raycast(toWallRightForwardRay, out RaycastHit rightForwardHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
-            bool frontWall = Physics.Raycast(toWallFrontRay, out RaycastHit frontWallHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask);
+            bool leftWall = Physics.Raycast(toWallLeftRay, out RaycastHit leftHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask, QueryTriggerInteraction.Ignore);
+            bool leftForwardWall = Physics.Raycast(toWallLeftForwardRay, out RaycastHit leftForwardHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask, QueryTriggerInteraction.Ignore);
+            bool rightWall = Physics.Raycast(toWallRightRay, out RaycastHit rightHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask, QueryTriggerInteraction.Ignore);
+            bool rightForwardWall = Physics.Raycast(toWallRightForwardRay, out RaycastHit rightForwardHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask, QueryTriggerInteraction.Ignore);
+            bool frontWall = Physics.Raycast(toWallFrontRay, out RaycastHit frontWallHit, motor.Capsule.radius + wallRunDetectionDistance, wallRunSurfaceMask, QueryTriggerInteraction.Ignore);
 
             if (touchingWall != TouchingWallState.None)
             {
@@ -480,9 +478,8 @@ namespace Player
             {
                 touchingWall = TouchingWallState.None;
             }
-            
             lastWallCollider = wallHit.collider;
-
+            
             // Edge case if try to wallrun on a corner
             if (leftForwardWall && rightForwardWall)
             {
@@ -554,6 +551,8 @@ namespace Player
         public void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
             ref HitStabilityReport hitStabilityReport)
         {
+            if(hitCollider.isTrigger) return;
+            
             // Register wall hit only
             if (Motor.GroundingStatus.IsStableOnGround || hitStabilityReport.IsStable) return;
 

@@ -13,11 +13,6 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            SceneManager.LoadScene(0);
-        }
+        
     }
 }

@@ -112,12 +112,12 @@ namespace Player
                     }
                     
                     if (Physics.Raycast(characterController.transform.position, characterController.transform.right, out rightHit,
-                            wallDetectionDistance, wallMask))
+                            wallDetectionDistance, wallMask, QueryTriggerInteraction.Ignore))
                     {
                         dutchAmount = (1f - (rightHit.distance / wallDetectionDistance)) * targetOffset.dutch;
                     }
                     else if (Physics.Raycast(characterController.transform.position, -characterController.transform.right, out leftHit,
-                        wallDetectionDistance, wallMask))
+                        wallDetectionDistance, wallMask, QueryTriggerInteraction.Ignore))
                     {
                         dutchAmount = (1f - (leftHit.distance / wallDetectionDistance)) * targetOffset.dutch; 
                         dutchAmount = -dutchAmount;

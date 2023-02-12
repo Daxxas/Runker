@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +9,10 @@ namespace Player.Inputs
     {
         private MainInputs mainInputs;
 
+        [Header("References")]
+        [SerializeField] private CinemachineInputProvider cinemachineInputProvider;
+        
+        [Header("Parameters")]
         [SerializeField] private float escapePressMaxTime = 0.2f;
         [SerializeField] private int pressAmountMax = 2;
         private int pressCount = 0;
@@ -83,11 +88,13 @@ namespace Player.Inputs
         private void OnEnable()
         {
             mainInputs.Enable();
+            cinemachineInputProvider.enabled = true;
         }
 
         private void OnDisable()
         {
             mainInputs.Disable();
+            cinemachineInputProvider.enabled = false;
         }
     }
 }

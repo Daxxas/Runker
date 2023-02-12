@@ -7,7 +7,13 @@ namespace Game.Level
     {
         private float currentTime = 0f;
         private bool timerStarted = false;
-        
+
+        private void Start()
+        {
+            LevelManager.onLevelStart += StartTimer;
+            LevelManager.onLevelEnd += StopTimer;
+        }
+
         public void StartTimer()
         {
             timerStarted = true;
