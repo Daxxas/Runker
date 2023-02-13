@@ -757,7 +757,6 @@ namespace Player
             Debug.Log("Wallrun START");
             
             wallRunStartTime = Time.time; // Used to calculate wallrun hold duration
-            Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, wallHit.normal); // Get Velocity direction tangent to ground to project on the plane as it was on a plane surface
             Vector3 wallRunDirection = Vector3.ProjectOnPlane(motor.CharacterForward, wallHit.normal); // Apply velocity direction to wall
 
             wallRunDirection.Normalize();
