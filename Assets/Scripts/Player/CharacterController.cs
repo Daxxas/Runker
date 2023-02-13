@@ -1,4 +1,5 @@
 using System;
+using Cinemachine.Utility;
 using KinematicCharacterController;
 using Player.Grapple;
 using Player.Inputs;
@@ -481,6 +482,12 @@ namespace Player
                 origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height / 2),
                 direction = motor.CharacterForward
             };
+
+            Ray aboveHeadRay = new Ray()
+            {
+                origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height),
+                direction = motor.CharacterUp
+            };
             
             Debug.DrawRay(toWallRightRay.origin, toWallRightRay.direction, Color.magenta);
             Debug.DrawRay(toWallRightForwardRay.origin, toWallRightForwardRay.direction, Color.magenta);
@@ -535,8 +542,6 @@ namespace Player
             {
                 touchingWall = TouchingWallState.None;
             }
-
-            // TODO : Check above the head to release wallrun when touching ceiling
             
             bool wallRunOnCooldown = Time.time < wallRunCooldownTime + wallRunCooldown;
             bool canHoldOnWall = Time.time < wallRunStartTime + wallRunHoldDuration;
@@ -604,6 +609,18 @@ namespace Player
             ref HitStabilityReport hitStabilityReport)
         {
             if(hitCollider.isTrigger) return;
+
+            // Redirect momentum when hitting ceiling
+            if (hitNormal.y < 0f)
+            {
+                // Also stop wallrun if we where wallrunning
+                if (characterMovementMode == MovementMode.Wallrun)
+                {
+                    WallRunEnd(touchingWall);
+                }
+
+                momentum = Vector3.ProjectOnPlane(momentum, hitNormal);
+            }
             
             // Register wall hit only
             if (Motor.GroundingStatus.IsStableOnGround || hitStabilityReport.IsStable) return;
@@ -806,13 +823,11 @@ namespace Player
                     // If release while we were touching the front of the wall, we want to jump off the wall
                     if (touchingWall == TouchingWallState.Front)
                     {
-                        Debug.Log("STILL TOUCHING FRONT");
                         momentum += wallHit.normal * wallRunReleaseVelocity;
                     }
                     // release when vertical reach the "end" of wall
                     else
                     {
-                        Debug.Log("NOT TOUCHING FRONT");
                         momentum += -wallHit.normal * wallRunReleaseVelocity;
                         momentum.y = verticalWallRunReleaseVelocity;
                         motor.ForceUnground(wallRunVerticalExitUngroundForceTime);
