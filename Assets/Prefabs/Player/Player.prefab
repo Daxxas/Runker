@@ -1612,7 +1612,7 @@ MonoBehaviour:
   wallRunGripStrength: 10
   wallRotationSharpness: 10
   wallRunMinimumVerticalSpeed: 25
-  verticalWallRunReleaseVelocity: 30
+  verticalWallRunReleaseVelocity: 15
   wallRunVerticalExitUngroundForceTime: 0.2
   wallJumpAngle: 45
   wallJumpVelocity: 17

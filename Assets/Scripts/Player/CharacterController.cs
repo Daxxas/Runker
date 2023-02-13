@@ -157,6 +157,7 @@ namespace Player
         private bool inputSliding = false;
         private bool jumpRequest = false;
         private bool jumpHold  = false;
+        private bool hasJumped = false;
         private float lastJumpBufferTime = 0f;
         private int aerialJumpCount = 0;
         private bool JumpBufferIsValid => Time.time < lastJumpBufferTime + jumpBufferDuration;
@@ -248,6 +249,12 @@ namespace Player
         {
             UpdateState();
 
+            // Reset has jumped boolean if we are not airborn anymore only
+            if (hasJumped && characterMovementMode != MovementMode.Airborn)
+            {
+                hasJumped = false;
+            }
+            
             // Reset attached body override at the start of the frame in case we were attached to something last frame
             motor.AttachedRigidbodyOverride = null;
 
@@ -305,7 +312,7 @@ namespace Player
                 {
                     float adaptedGravity = gravity;
                     float adaptedMass = mass;
-                    if (!jumpHold && momentum.y > 0f)
+                    if (!jumpHold && momentum.y > 0f && hasJumped)
                     {
                         adaptedGravity = gravity * jumpHoldGravityMultiplier;
                     }
@@ -374,6 +381,7 @@ namespace Player
                 }
 
                 jumpRequest = false;
+                hasJumped = true;
                 onJump?.Invoke();
                 Vector3 jumpDirectionFromGround = Vector3.up;
                 // We want to be jump perpendicular to the ground when sliding
@@ -754,14 +762,9 @@ namespace Player
 
         private void WallRunStart()
         {
-            Debug.Log("Wallrun START");
-            
             wallRunStartTime = Time.time; // Used to calculate wallrun hold duration
             Vector3 wallRunDirection = Vector3.ProjectOnPlane(motor.CharacterForward, wallHit.normal); // Apply velocity direction to wall
-
-            wallRunDirection.Normalize();
-
-            Debug.Log(wallRunDirection);
+            
             Debug.DrawRay(transform.position, wallRunDirection, Color.green, 5f);
             
             if (touchingWall == TouchingWallState.Front)
@@ -811,7 +814,6 @@ namespace Player
                     {
                         Debug.Log("NOT TOUCHING FRONT");
                         momentum += -wallHit.normal * wallRunReleaseVelocity;
-                        // TODO : The hold jump button gravity multiplier affects this 
                         momentum.y = verticalWallRunReleaseVelocity;
                         motor.ForceUnground(wallRunVerticalExitUngroundForceTime);
                     }
