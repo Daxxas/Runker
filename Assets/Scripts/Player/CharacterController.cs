@@ -347,8 +347,12 @@ namespace Player
                 if(touchingWall != TouchingWallState.Front)
                 {
                     momentum.y += -wallRunGravity * mass * deltaTime; // Apply gravity only when not wallrunning up
+                    
+                    if(!wallJumpPreventingWallGrip) // Stop redirecting momentum if we are walljumping
+                        momentum = Vector3.ProjectOnPlane(momentum.normalized, wallHit.normal) * momentum.magnitude;
+
                 }
-                
+
                 currentVelocity = momentum;
 
                 if (lastWallCollider != null && wallHit.collider != null && wallHit.collider.TryGetComponent(out PhysicsMover mover))
@@ -427,9 +431,12 @@ namespace Player
                 Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal);
                 Vector3 wallrunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal);
                 wallrunDirection.y = 0;
-                
-                Quaternion targetRotation = Quaternion.LookRotation(wallrunDirection.normalized, motor.CharacterUp);
-                currentRotation = Quaternion.Lerp(currentRotation, targetRotation, 1f - Mathf.Exp(-wallRotationSharpness * deltaTime));
+
+                //if (wallrunDirection.normalized != Vector3.zero)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(wallrunDirection.normalized, motor.CharacterUp);
+                    currentRotation = Quaternion.Lerp(currentRotation, targetRotation, 1f - Mathf.Exp(-wallRotationSharpness * deltaTime));
+                }
             }
             else if(touchingWall == TouchingWallState.Front) 
             {
@@ -564,12 +571,13 @@ namespace Player
             {
                 shouldWallRun = false;
             }
-            
+
             // Inputs according to character forward
             Vector3 forwardFromCharacter = transform.rotation * inputProvider.MoveDirectionV3;
             Vector3 inputRight = Vector3.Cross(forwardFromCharacter, motor.CharacterUp);
             Vector3 inputDirection = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
             bool inputAwayFromWall = inputDirection != Vector3.zero && (inputDirection - wallHit.normal).magnitude < 1f;
+
             
             if(characterMovementMode == MovementMode.Wallrun && !wallJumpPreventingWallGrip && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun ||
                    (jumpRequest && JumpBufferIsValid)))
@@ -611,7 +619,7 @@ namespace Player
             if(hitCollider.isTrigger) return;
 
             // Redirect momentum when hitting ceiling
-            if (hitNormal.y < 0f)
+            if (hitNormal.y < -0.0001f)
             {
                 // Also stop wallrun if we where wallrunning
                 if (characterMovementMode == MovementMode.Wallrun)
@@ -790,6 +798,7 @@ namespace Player
                 // TODO : Do I really want to kill x & z velocity when vertical wallrun ?
                 momentum.x = 0;
                 momentum.z = 0;
+                
             }
             else
             {
