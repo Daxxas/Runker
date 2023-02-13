@@ -528,6 +528,8 @@ namespace Player
                 touchingWall = TouchingWallState.None;
             }
 
+            // TODO : Check above the head to release wallrun when touching ceiling
+            
             bool wallRunOnCooldown = Time.time < wallRunCooldownTime + wallRunCooldown;
             bool canHoldOnWall = Time.time < wallRunStartTime + wallRunHoldDuration;
             
@@ -554,7 +556,7 @@ namespace Player
             Vector3 forwardFromCharacter = transform.rotation * inputProvider.MoveDirectionV3;
             Vector3 inputRight = Vector3.Cross(forwardFromCharacter, motor.CharacterUp);
             Vector3 inputDirection = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized;
-            bool inputAwayFromWall = (inputDirection - wallHit.normal).magnitude < 1f;
+            bool inputAwayFromWall = inputDirection != Vector3.zero && (inputDirection - wallHit.normal).magnitude < 1f;
             
             if(characterMovementMode == MovementMode.Wallrun && !wallJumpPreventingWallGrip && (!canHoldOnWall || inputAwayFromWall || !shouldWallRun ||
                    (jumpRequest && JumpBufferIsValid)))
@@ -752,10 +754,17 @@ namespace Player
 
         private void WallRunStart()
         {
+            Debug.Log("Wallrun START");
+            
             wallRunStartTime = Time.time; // Used to calculate wallrun hold duration
-            Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, motor.GroundingStatus.GroundNormal); // Get Velocity direction tangent to ground to project on the plane as it was on a plane surface
-            Vector3 wallRunDirection = Vector3.ProjectOnPlane(velocityDirection, wallHit.normal); // Apply velocity direction to wall
+            Vector3 velocityDirection = motor.GetDirectionTangentToSurface(motor.Velocity, wallHit.normal); // Get Velocity direction tangent to ground to project on the plane as it was on a plane surface
+            Vector3 wallRunDirection = Vector3.ProjectOnPlane(motor.CharacterForward, wallHit.normal); // Apply velocity direction to wall
 
+            wallRunDirection.Normalize();
+
+            Debug.Log(wallRunDirection);
+            Debug.DrawRay(transform.position, wallRunDirection, Color.green, 5f);
+            
             if (touchingWall == TouchingWallState.Front)
             {
                 momentum.y = Mathf.Max(momentum.y, wallRunMinimumVerticalSpeed);
