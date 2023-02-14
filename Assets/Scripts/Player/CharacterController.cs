@@ -490,12 +490,6 @@ namespace Player
                 direction = motor.CharacterForward
             };
 
-            Ray aboveHeadRay = new Ray()
-            {
-                origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height),
-                direction = motor.CharacterUp
-            };
-            
             Debug.DrawRay(toWallRightRay.origin, toWallRightRay.direction, Color.magenta);
             Debug.DrawRay(toWallRightForwardRay.origin, toWallRightForwardRay.direction, Color.magenta);
             Debug.DrawRay(toWallLeftRay.origin, toWallLeftRay.direction, Color.magenta);
@@ -618,13 +612,20 @@ namespace Player
         {
             if(hitCollider.isTrigger) return;
 
+            
+            Ray aboveHeadRay = new Ray()
+            {
+                origin = motor.TransientPosition + Vector3.up * (motor.Capsule.height),
+                direction = motor.CharacterUp
+            };
+            
             // Redirect momentum when hitting ceiling
-            if (hitNormal.y < -0.0001f)
+            if (Physics.Raycast(aboveHeadRay, wallRunDetectionDistance, Physics.AllLayers, QueryTriggerInteraction.Ignore))
             {
                 // Also stop wallrun if we where wallrunning
                 if (characterMovementMode == MovementMode.Wallrun)
                 {
-                    WallRunEnd(touchingWall);
+                   WallRunEnd(touchingWall);
                 }
 
                 momentum = Vector3.ProjectOnPlane(momentum, hitNormal);
