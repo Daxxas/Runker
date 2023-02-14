@@ -271,7 +271,7 @@ namespace Player
                 momentum = Vector3.zero;
             }
             // Get forward according to camera
-            Vector3 correctedInput = GetInputOrientationAccordingToCharacterForward(inputProvider.MoveDirectionV3);
+            Vector3 correctedInput = GetInputOrientationAccordingToCharacterForward(inputProvider.MoveDirectionV3).normalized;
             
             if (characterMovementMode == MovementMode.Slide) 
             {
