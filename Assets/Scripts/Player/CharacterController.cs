@@ -684,7 +684,7 @@ namespace Player
                 return;
             }
             
-            if (shouldWallRun)
+            if (shouldWallRun && !wallJumpPreventingWallGrip)
             {
                 characterMovementMode = MovementMode.Wallrun;
                 return;
@@ -817,6 +817,7 @@ namespace Player
             if (jumpRequest && JumpBufferIsValid)
             {
                 jumpRequest = false;
+                hasJumped = true;
                 wallRunCooldownTime = 0f; // Don't put wallrun on cooldown
                 
                 float wallJumpAngleCoef = wallJumpAngle / 90f; // Calculate walljump angle coefficient
