@@ -27,7 +27,8 @@ namespace Player.Grapple
         public float GrappleAirControl => grappleAirControl;
         [SerializeField] private float grappleAcceleration;
         public float GrappleAcceleration => grappleAcceleration;
-        [SerializeField] private float grappleThrowSpeed = 1f;
+        [SerializeField] private float grappleThrowTime = 1f;
+        private float grappleThrowSpeed => grappleMaxDistance / grappleThrowTime;
 
         private float currentThrowDistance = 0f;
         private Vector3 grappleTargetPoint = Vector3.zero;
