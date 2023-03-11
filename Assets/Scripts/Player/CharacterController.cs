@@ -34,12 +34,12 @@ namespace Player
         [SerializeField] private float groundedMoveSpeed = 5f;
         [Tooltip("How reactive will the character be to follow the camera orientation \nNOTE : All the sharpness variables don't make senses matematically yet and can only be guessed")]
         [SerializeField] private float orientationSharpness = 10f;
-        [Tooltip("How fast the character will adjust its speed to the walk speed (also affect how much it will decreases when he stops walking too) \nNOTE : All the sharpness variables don't make senses matematically yet and can only be guessed")]
+        [Tooltip("How fast the character will adjust its speed to the walk speed (also affect how much it will decreases when he stops walking too) \nNOTE : It's the time for the character to reach this speed from 0")]
         [SerializeField] private float walkSharpness = 10f;
         [Header("Run")]
         [Tooltip("Move speed when running")]
         [SerializeField] private float groundedRunSpeed = 7f;
-        [Tooltip("How fast the character will adjust its speed to the run speed (also affect how much it will decreases when he stops running too) \nNOTE : All the sharpness variables don't make senses matematically yet and can only be guessed")]
+        [Tooltip("How fast the character will adjust its speed to the run speed (also affect how much it will decreases when he stops running too) \nNOTE : It's the time for the character to reach this speed from 0")]
         [SerializeField] private float runSharpness = 10f;
         [Header("Slide")]
         [Tooltip("How fast the slide will adjust the current momentum to what it should be : determined by the slope angle, mass and gravity, bigger the slope, bigger the mass, faster it will try to be")]
@@ -300,8 +300,10 @@ namespace Player
                 // Everything is momentum, even walking
                 float targetSpeed = !isRunning ? groundedMoveSpeed : groundedRunSpeed;
                 float lerpSharpness = !isRunning ? walkSharpness : runSharpness;
+                float interpolationSpeed = targetSpeed / lerpSharpness;
                 Vector3 targetVelocity = correctedInput * targetSpeed;
-                momentum = Vector3.Lerp(momentum, targetVelocity, 1f - Mathf.Exp(-lerpSharpness * deltaTime));
+                Debug.Log(targetVelocity);
+                momentum = Vector3.MoveTowards(momentum, targetVelocity, interpolationSpeed * deltaTime);
                 currentVelocity = momentum;
             }
             
