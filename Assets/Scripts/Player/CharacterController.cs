@@ -4,6 +4,7 @@ using KinematicCharacterController;
 using Player.Grapple;
 using Player.Inputs;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Player
 {
@@ -41,6 +42,7 @@ namespace Player
         [SerializeField] private float groundedRunSpeed = 7f;
         [Tooltip("How fast the character will adjust its speed to the run speed (also affect how much it will decreases when he stops running too) \nNOTE : It's the time for the character to reach this speed from 0")]
         [SerializeField] private float runSharpness = 10f;
+        
         [Header("Slide")]
         [Tooltip("How fast the slide will adjust the current momentum to what it should be : determined by the slope angle, mass and gravity, bigger the slope, bigger the mass, faster it will try to be")]
         [SerializeField] private float slideSharpness = 10f;
@@ -50,9 +52,13 @@ namespace Player
         [SerializeField] private float slideBoostMinimumHorizontalVelocity = 5f;
         [Tooltip("The minimum grounded time spent to have the slide boost, also resets when the boost is gained")]
         [SerializeField] private float slideGroundTimeMinimum = 3f;
-        [Tooltip("The mass of the character when sliding (to have more speed on slopes) \nNOTE: Maybe it would be better to simply have a slide drag instead of this")]
-        [SerializeField] private float slideMass = 3f;
         
+        [FormerlySerializedAs("minimumSlideSpeedByAngle")]
+        [Tooltip("Slide speed in function of the slope angle")]
+        [SerializeField] private AnimationCurve slideSpeedByAngle = AnimationCurve.Linear(0f, 0f, 90f, 50f);
+        [Tooltip("meters lost per second when sliding in function of the slope angle")]
+        [SerializeField] private AnimationCurve slideDragByAngle = AnimationCurve.Linear(0f, 0f, 90f, .5f);
+
         [Header("Jump")]
         [Tooltip("The vertical force given when jumping")]
         [SerializeField] private float jumpForce = 5f;
@@ -279,17 +285,21 @@ namespace Player
 
                 // calculate slope angle and make it a coefficient
                 float slopeAngle = Vector3.Angle(Vector3.up, effectiveGroundNormal);
+                
+                float targetSpeed = slideSpeedByAngle.Evaluate(slopeAngle);
+                
+                float slideDrag = slideDragByAngle.Evaluate(slopeAngle);
+
                 float slopeSin = Mathf.Sin(Mathf.Deg2Rad * slopeAngle);
                 
-                // TODO : Replace this to something using slide drag instead of something physically correct like what's actually here ? 
                 // Make controller slide along slope 
-                Vector3 targetVelocity = slideMass * -gravity * slopeSin * -effectiveGroundNormal;
+                Vector3 targetDirection = -gravity * slopeSin * -effectiveGroundNormal;
                 
                 // Redirect target velocity along ramp instead of being perpendicular to ramp
-                targetVelocity = motor.GetDirectionTangentToSurface(targetVelocity, effectiveGroundNormal) * targetVelocity.magnitude;
-
+                targetDirection = motor.GetDirectionTangentToSurface(targetDirection.normalized, effectiveGroundNormal) * targetSpeed;
+                
                 // momentum = targetVelocity.normalized * momentum.magnitude;
-                momentum = Vector3.Slerp(momentum, targetVelocity, 1f - Mathf.Exp(-slideSharpness * deltaTime));
+                momentum = Vector3.MoveTowards(momentum, targetDirection, slideDrag * deltaTime);
                 
                 currentVelocity = momentum;
             } 
@@ -302,7 +312,6 @@ namespace Player
                 float lerpSharpness = !isRunning ? walkSharpness : runSharpness;
                 float interpolationSpeed = targetSpeed / lerpSharpness;
                 Vector3 targetVelocity = correctedInput * targetSpeed;
-                Debug.Log(targetVelocity);
                 momentum = Vector3.MoveTowards(momentum, targetVelocity, interpolationSpeed * deltaTime);
                 currentVelocity = momentum;
             }
@@ -314,18 +323,12 @@ namespace Player
                 if (!motor.GroundingStatus.IsStableOnGround)
                 {
                     float adaptedGravity = gravity;
-                    float adaptedMass = mass;
                     if (!jumpHold && momentum.y > 0f && hasJumped)
                     {
                         adaptedGravity = gravity * jumpHoldGravityMultiplier;
                     }
 
-                    if (characterMovementMode == MovementMode.Slide)
-                    {
-                        adaptedMass = slideMass;
-                    }
-                    
-                    momentum += Vector3.down * (adaptedGravity * adaptedMass * deltaTime);
+                    momentum += Vector3.down * (adaptedGravity * mass * deltaTime);
                     
                     // Air control
                     Vector3 airControl = forwardFromCamera * (airControlForce * deltaTime);
