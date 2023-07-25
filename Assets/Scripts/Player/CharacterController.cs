@@ -68,8 +68,8 @@ namespace Player
         [SerializeField] private float airDrag = 0.01f;
         [Tooltip("The acceleration force the player can influence the character in the air")]
         [SerializeField] private float airControlForce = 0.01f;
-        [Tooltip("Aerial jump amount")]
-        [SerializeField] private int aerialJumpMax = 1;
+        [Tooltip("Jump amount including grounded jump")]
+        [SerializeField] private int jumpMax = 2;
         [Tooltip("Percentage in which an aerial jump redirect the momentum direction (0 = no redirection at all, 1 = complete redirection)")]
         [SerializeField] [Range(0f, 1f)] private float aerialJumpDirectionInfluence = 1f;
         [Tooltip("Duration in which a jump can be buffered before touching ground")]
@@ -131,6 +131,10 @@ namespace Player
         // TODO : Implement coyote time
         [Header("Coyote")] 
         [SerializeField] private float coyoteTime = 0.2f;
+        private float lastGroundTime = -10f;
+        
+        public bool CanJumpFromGround => motor.GroundingStatus.IsStableOnGround || lastGroundTime + coyoteTime >= Time.time;
+        
         // Events for external uses
         public Action onJump;
         public Action onLand;
@@ -166,7 +170,7 @@ namespace Player
         private bool jumpHold  = false;
         private bool hasJumped = false;
         private float lastJumpBufferTime = 0f;
-        private int aerialJumpCount = 0;
+        private int jumpCount = 0;
         private bool JumpBufferIsValid => Time.time < lastJumpBufferTime + jumpBufferDuration;
         
         // Escape
@@ -266,7 +270,7 @@ namespace Player
             motor.AttachedRigidbodyOverride = null;
 
             Vector3 effectiveGroundNormal = motor.GroundingStatus.GroundNormal;
-            
+
             // Adjust velocity to ground normal
             if(motor.GroundingStatus.IsStableOnGround)
                 currentVelocity = motor.GetDirectionTangentToSurface(currentVelocity, effectiveGroundNormal) * HorizontalVelocity.magnitude;
@@ -382,13 +386,13 @@ namespace Player
             }
             
             // Jump handling 
-            if (jumpRequest && JumpBufferIsValid && (motor.GroundingStatus.IsStableOnGround || aerialJumpCount < aerialJumpMax))
+            Debug.Log((lastGroundTime + coyoteTime) + " | " + Time.time);
+            
+            if (jumpRequest && JumpBufferIsValid && (CanJumpFromGround || jumpCount < jumpMax))
             {
-                if (!motor.GroundingStatus.IsStableOnGround)
-                {
-                    momentum = momentum * (1f - aerialJumpDirectionInfluence) + (aerialJumpDirectionInfluence * momentum.magnitude * motor.CharacterForward);
-                    aerialJumpCount++;
-                }
+                
+                momentum = momentum * (1f - aerialJumpDirectionInfluence) + (aerialJumpDirectionInfluence * momentum.magnitude * motor.CharacterForward);
+                jumpCount++;
 
                 jumpRequest = false;
                 hasJumped = true;
@@ -608,8 +612,10 @@ namespace Player
 
         public void OnGroundHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, ref HitStabilityReport hitStabilityReport)
         {
+            lastGroundTime = Time.time;
+
             // Debug.Log(motor.Velocity);
-            aerialJumpCount = 0;
+            jumpCount = 0;
         }
         
         public void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
@@ -815,7 +821,7 @@ namespace Player
 
         private void WallRunEnd(TouchingWallState exitTouchingWallState)
         {
-            aerialJumpCount = 0; // Reset aerials after wallrun
+            jumpCount = 0; // Reset aerials after wallrun
             wallJumpFrameCount = 0; // Reset walljump frame count
             hasTouchedGroundSinceWallrun = false; 
             momentum = motor.Velocity; // Keep wall momentum when releasing wallrun

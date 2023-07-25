@@ -3461,6 +3461,11 @@ PrefabInstance:
       propertyPath: m_YAxis.m_DecelTime
       value: 0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 746883985650114452, guid: b1ff6dc29413c374192da00c371147c4,
+        type: 3}
+      propertyPath: m_CollideAgainst.m_Bits
+      value: 183
+      objectReference: {fileID: 0}
     - target: {fileID: 746883985650114453, guid: b1ff6dc29413c374192da00c371147c4,
         type: 3}
       propertyPath: m_Dutch
