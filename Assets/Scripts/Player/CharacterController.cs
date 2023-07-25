@@ -386,8 +386,6 @@ namespace Player
             }
             
             // Jump handling 
-            Debug.Log((lastGroundTime + coyoteTime) + " | " + Time.time);
-            
             if (jumpRequest && JumpBufferIsValid && (CanJumpFromGround || jumpCount < jumpMax))
             {
                 
@@ -547,6 +545,8 @@ namespace Player
             }
             lastWallCollider = wallHit.collider;
             
+            float hitDirection = touchingWall == TouchingWallState.Left ? -.5f : .5f;
+            
             // Edge case if try to wallrun on a corner
             if (leftForwardWall && rightForwardWall)
             {
@@ -555,12 +555,15 @@ namespace Player
             
             bool wallRunOnCooldown = Time.time < wallRunCooldownTime + wallRunCooldown;
             bool canHoldOnWall = Time.time < wallRunStartTime + wallRunHoldDuration;
+
+            Debug.Log(inputProvider.MoveDirectionV3);
             
             if (touchingWall != TouchingWallState.None && // if touching wall
                 !motor.GroundingStatus.IsStableOnGround && // if not grounded
                 (!wallRunOnCooldown || hasTouchedGroundSinceWallrun) && // if not on cooldown
                 (canHoldOnWall || characterMovementMode != MovementMode.Wallrun) && // if can still hold the wall run
-                !wallJumpPreventingWallGrip) 
+                !wallJumpPreventingWallGrip &&
+                inputProvider.MoveDirectionV3.z > 0 || (touchingWall == TouchingWallState.Right && inputProvider.MoveDirectionV3.x > 0) || (touchingWall == TouchingWallState.Left && inputProvider.MoveDirectionV3.x < 0)) 
             {
                 shouldWallRun = true;
                 // if wall run just started
