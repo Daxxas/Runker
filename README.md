@@ -2,7 +2,7 @@
 
 Runker is a project around a third person kinematic character controller based on momentum inspired from Titanfall 2 movements
 
-The main content of controller is at ```Assets/Scripts/Player/CharacterController.cs```
+The main content of controller is at ```Assets/Scripts/Player/CharacterController.cs``` (in UpdateVelocity function)
 [Go to file](https://github.com/Daxxas/Runker/blob/dev/Assets/Scripts/Player/CharacterController.cs)
 
 and for the grapple mechanic at ```Assets/Scripts/Player/Grapple/GrappleController.cs```
